@@ -1,29 +1,30 @@
-import { Link } from "react-router-dom"
+import { Link, Outlet, useLocation } from "react-router-dom"
 import Avatar from "../shared/Avatar"
 import Card from "../shared/Card"
 
 const Layout = () => {
   const leftAsideSize = 350
   const rightAsideSize = 450
+  const {pathname} = useLocation()
 
   const menus = [
         {
             icon: "ri-home-9-line",
-            href: "/app",
+            href: "/app/dashboard",
             label: "dashboard"
         },
         {
             icon: "ri-chat-smile-3-line",
-            href: "/posts",
+            href: "/app/posts",
             label: "my posts"
         },
         {
             icon: "ri-group-line",
-            href: "/friends",
+            href: "/app/friends",
             label: "friends"
         }
   ]
-  
+
   return (
     <div className="min-h-screen">
       <aside
@@ -81,12 +82,26 @@ const Layout = () => {
       </aside>
 
       <section
-        className="bg-amber-700 min-h-screen"
+        className="min-h-screen p-8"
         style={{
           marginLeft: leftAsideSize,
           marginRight: rightAsideSize,
         }}
-      ></section>
+      >
+        <Card 
+          title={
+              <div className="flex items-center gap-4">
+                <button className="bg-gray-100 w-10 h-10 rounded-full hover:bg-salte-200">
+                  <i className="ri-arrow-left-line"></i>
+                </button>
+                <h1>{pathname.split("/").pop()}</h1>
+              </div>
+            } 
+            divider
+          >
+          <Outlet />
+        </Card>
+      </section>
 
       <aside
         className="fixed top-0 right-0 h-full p-8 overflow-auto"

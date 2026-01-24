@@ -1,8 +1,8 @@
-import type { FC, ReactElement } from "react"
+import type { FC, ReactElement, ReactNode } from "react"
 
 interface CardInterface {
   children?: ReactElement
-  title?: string
+  title?: ReactNode
   footer?: ReactElement
   divider?: boolean
 }
@@ -22,7 +22,7 @@ const Card: FC<CardInterface> = ({ children, title, footer, divider }) => {
       "
     >
       {title && (
-        <h1 className="text-base font-semibold text-gray-900">
+        <h1 className="text-base font-semibold text-gray-900 capitalize">
           {title}
         </h1>
       )}
