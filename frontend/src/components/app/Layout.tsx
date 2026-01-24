@@ -1,14 +1,26 @@
 const Layout = () => {
+  const leftAsideSize = 350
+  const rightAsideSize = 450
+
   return (
     <div className="min-h-screen">
-        <aside className="w-64 h-screen bg-red-500 fixed top-0 left-0 text-white p-8 overflow-auto">
-          <div className="p-4">
-            <h1 className="text-xl font-bold">Besties</h1>
-          </div>
-        </aside>
-        <main className="ml-64 p-4">
-        </main>
-        <aside className=""></aside>
+      <aside
+        className="bg-red-500 fixed top-0 left-0 h-full p-8 overflow-auto"
+        style={{ width: leftAsideSize }}
+      />
+
+      <section
+        className="bg-amber-700 min-h-screen"
+        style={{
+          marginLeft: leftAsideSize,
+          marginRight: rightAsideSize,
+        }}
+      />
+
+      <aside
+        className="bg-rose-500 fixed top-0 right-0 h-full p-8 overflow-auto"
+        style={{ width: rightAsideSize }}
+      />
     </div>
   )
 }
