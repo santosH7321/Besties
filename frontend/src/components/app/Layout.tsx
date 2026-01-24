@@ -89,7 +89,9 @@ const Layout = () => {
       <aside
         className="bg-rose-500 fixed top-0 right-0 h-full p-8 overflow-auto"
         style={{ width: rightAsideSize }}
-      ></aside>
+      >
+      
+      </aside>
     </div>
   )
 }
