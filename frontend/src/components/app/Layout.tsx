@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import Avatar from "../shared/Avatar"
+import Card from "../shared/Card"
 
 const Layout = () => {
   const leftAsideSize = 350
@@ -22,6 +23,7 @@ const Layout = () => {
             label: "friends"
         }
   ]
+  
   return (
     <div className="min-h-screen">
       <aside
@@ -87,10 +89,41 @@ const Layout = () => {
       ></section>
 
       <aside
-        className="bg-rose-500 fixed top-0 right-0 h-full p-8 overflow-auto"
+        className="fixed top-0 right-0 h-full p-8 overflow-auto"
         style={{ width: rightAsideSize }}
       >
-      
+        <Card title="My Friends" divider>
+          <div className="space-y-3">
+            {Array(20).fill(0).map((item, index) => (
+              <div
+                key={index}
+                className="
+                  flex items-center
+                  rounded-xl
+                  px-3 py-2
+                  hover:bg-gray-50
+                  transition-colors
+                  cursor-pointer
+                "
+              >
+                <Avatar
+                  size="md"
+                  image="/images/myimage.jpeg"
+                  title="Santosh kumar"
+                  subtitle={
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                      </span>
+                      <p className="text-gray-500 text-xs">Online</p>
+                    </div>
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        </Card>
       </aside>
     </div>
   )
