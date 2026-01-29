@@ -33,10 +33,10 @@ const Layout = () => {
           className="fixed top-0 left-0 h-full p-8 overflow-auto"
           style={{ width: leftAsideSize }}>
           <div className="h-full rounded-2xl bg-linear-to-br from-[#0F172A] via-[#1E1B4B] to-[#020617] p-6 shadow-2xl flex flex-col">
-            <div className="mb-8">
+            <div className="mb-8 flex justify-center">
               {
                 leftAsideSize === collapseSize ?
-                <i className="ri-user-fill text-xl text-white animate__animated animate__fadeIn"></i>
+                <i className="ri-user-fill text-xl text-white animate__animated animate__fadeIn" title="profile"></i>
                 :
                 <div className="animate__animated animate__fadeIn">
                   <Avatar
@@ -49,7 +49,7 @@ const Layout = () => {
                 </div>
               }
             </div>
-            <div className="h-px bg-white/10" />
+            <div className="my-2 h-px bg-white/10" />
             <nav className="flex-1 space-y-1">
               {menus.map((item) => (
                 <Link

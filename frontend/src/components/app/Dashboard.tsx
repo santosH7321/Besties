@@ -1,6 +1,10 @@
+import Post from "./Post"
+
 const Dashboard = () => {
   return (
-    <div>Dashboard</div>
+    <div>
+      <Post />
+    </div>
   )
 }
 
