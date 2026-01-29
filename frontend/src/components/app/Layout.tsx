@@ -122,70 +122,146 @@ const Layout = () => {
       </section>
 
       <aside 
-        className="bg-white fixed top-0 right-0 h-full p-8 overflow-auto space-y-8" 
+        className="
+          bg-white fixed top-0 right-0 h-full
+          p-6 space-y-6
+          overflow-y-auto
+          border-l border-gray-200
+          shadow-sm
+        " 
         style={{
-        width: rightAsideSize,
-        transition: '0.2s'
-        }}>
-        <div className="h-62.5 overflow-auto">
+          width: rightAsideSize,
+          transition: '0.2s'
+        }}
+      >
+
+        <div className="h-64 overflow-y-auto pr-2">
           <Card title="Suggested" divider>
-            <div className="space-y-8">
+            <div className="space-y-5">
               {
                 Array(20).fill(0).map((item, index)=>(
-                  <div key={index} className="flex gap-4">
-                    <img src="/images/myimage.jpeg" alt="jpeg" className="w-16 h-16 rounded object-cover" />
-                      <div>
-                        <h1 className="text-black font-medium">Santosh Kumar</h1>
-                          <button className="font-medium bg-green-400 text-white rounded px-2 py-1 text-xs hover:bg-green-500 mt-1">
-                            <i className="ri-user-add-line mr-1"></i>
-                              Add Friend
-                          </button>
-                      </div>
+                  <div 
+                    key={index} 
+                    className="
+                      flex gap-3 items-center
+                      p-2 rounded-xl
+                      hover:bg-gray-50
+                      transition
+                    "
+                  >
+                    <img 
+                      src="/images/myimage.jpeg" 
+                      alt="jpeg" 
+                      className="w-14 h-14 rounded-xl object-cover shadow-sm"
+                    />
+
+                    <div className="flex-1">
+                      <h1 className="text-gray-800 font-semibold text-sm">
+                        Santosh Kumar
+                      </h1>
+
+                      <button className="
+                        mt-1
+                        text-xs font-semibold
+                        bg-green-500
+                        hover:bg-green-600
+                        text-white
+                        px-3 py-1
+                        rounded-full
+                        transition
+                        shadow-sm
+                      ">
+                        <i className="ri-user-add-line mr-1"></i>
+                        Add Friend
+                      </button>
+                    </div>
                   </div>
-                  ))
+                ))
               }
             </div>
           </Card>
         </div>
+
         <Card title="Friends" divider>
-          <div className="space-y-5">
+          <div className="space-y-3">
             {
               Array(20).fill(0).map((item, index)=>(
-                <div key={index} className="bg-gray-50 p-3 rounded-lg flex justify-between">
+                <div 
+                  key={index} 
+                  className="
+                    flex items-center justify-between
+                    p-2 rounded-xl
+                    hover:bg-gray-50
+                    transition
+                  "
+                >
                   <Avatar 
                     size="md"
                     image="/images/myimage.jpeg"
                     title="Santosh kumar"
                     subtitle={
-                    <small className={`${index % 2 === 0 ? 'text-zinc-400' : 'text-green-400'} font-medium`}>
-                      {index % 2 === 0 ? "Offline" : "Online"}
-                    </small>
+                      <small className={`${index % 2 === 0 ? 'text-zinc-400' : 'text-green-500'} font-medium`}>
+                        {index % 2 === 0 ? "Offline" : "Online"}
+                      </small>
                     }
                   />
-                  <div className="space-x-3">
+                  <div className="flex gap-2">
+
                     <Link to="/app/chat">
-                      <button className="hover:text-blue-600 text-blue-500" title="Chat">
+                      <button 
+                        title="Chat"
+                        className="
+                          w-9 h-9
+                          flex items-center justify-center
+                          rounded-lg
+                          hover:bg-blue-50
+                          text-blue-500
+                          transition
+                        "
+                      >
                         <i className="ri-chat-ai-line"></i>
                       </button>
                     </Link>
-                                    
+                                      
                     <Link to="/app/audio-chat">
-                        <button className="hover:text-green-500 text-green-400" title="Call">
-                          <i className="ri-phone-line"></i>
-                        </button>
+                      <button 
+                        title="Call"
+                        className="
+                          w-9 h-9
+                          flex items-center justify-center
+                          rounded-lg
+                          hover:bg-green-50
+                          text-green-500
+                          transition
+                        "
+                      >
+                        <i className="ri-phone-line"></i>
+                      </button>
                     </Link>
 
                     <Link to="/app/video-chat">
-                      <button className="hover:text-amber-600 text-amber-500" title="Video call">
+                      <button 
+                        title="Video call"
+                        className="
+                          w-9 h-9
+                          flex items-center justify-center
+                          rounded-lg
+                          hover:bg-amber-50
+                          text-amber-500
+                          transition
+                        "
+                      >
                         <i className="ri-video-on-ai-line"></i>
                       </button>
                     </Link>
+
                   </div>
                 </div>
               ))
             }
           </div>
         </Card>
+
       </aside>
     </div>
   )
