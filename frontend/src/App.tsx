@@ -10,6 +10,7 @@ import Dashboard from "./components/app/Dashboard"
 import Video from "./components/app/Video"
 import Audio from "./components/app/Audio"
 import Chat from "./components/app/Chat"
+import NotFound from "./components/NotFound"
 
 
 const App = () => {
@@ -27,7 +28,7 @@ const App = () => {
           <Route path="audio-chat" element={<Audio />} />
           <Route path="chat" element={<Chat />} />
         </Route>
-        <Route path="*" element={<div className="flex items-center justify-center text-5xl h-screen font-bold">Kya Chahiye bhai 😇</div>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   )
