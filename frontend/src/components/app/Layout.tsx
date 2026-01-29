@@ -1,10 +1,12 @@
 import { Link, Outlet, useLocation } from "react-router-dom"
 import Avatar from "../shared/Avatar"
 import Card from "../shared/Card"
+import { useState } from "react"
 
 const Layout = () => {
-  const leftAsideSize = 350
+  const [leftAsideSize, setLeftAsideSize] = useState(350)
   const rightAsideSize = 450
+  const collapseSize = 140
   const {pathname} = useLocation()
 
   const menus = [
@@ -28,47 +30,59 @@ const Layout = () => {
   return (
     <div className="min-h-screen">
       <aside
-        className="fixed top-0 left-0 h-full p-8 overflow-auto"
-        style={{ width: leftAsideSize }}>
-        <div className="h-full rounded-2xl bg-linear-to-br from-[#0F172A] via-[#1E1B4B] to-[#020617] p-6 shadow-2xl flex flex-col">
-          <div className="mb-8">
-            <Avatar
-              title="Santosh Kumar"
-              subtitle="Full-Stack Developer"
-              image="/images/myimage.jpeg"
-              titleColor="white"
-              subtitleColor="#c7c7ff"
-            />
-          </div>
+          className="fixed top-0 left-0 h-full p-8 overflow-auto"
+          style={{ width: leftAsideSize }}>
+          <div className="h-full rounded-2xl bg-linear-to-br from-[#0F172A] via-[#1E1B4B] to-[#020617] p-6 shadow-2xl flex flex-col">
+            <div className="mb-8">
+              {
+                leftAsideSize === collapseSize ?
+                <i className="ri-user-fill text-xl text-white animate__animated animate__fadeIn"></i>
+                :
+                <div className="animate__animated animate__fadeIn">
+                  <Avatar
+                    title="Santosh Kumar"
+                    subtitle="Full-Stack Developer"
+                    image="/images/myimage.jpeg"
+                    titleColor="white"
+                    subtitleColor="#c7c7ff"
+                  />
+                </div>
+              }
+            </div>
+            <div className="h-px bg-white/10" />
+            <nav className="flex-1 space-y-1">
+              {menus.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  title={leftAsideSize === collapseSize ? item.label : ""}
+                  className="
+                    group flex items-center gap-4 py-3 rounded-xl
+                    text-gray-300
+                    hover:text-white
+                    hover:bg-white/10
+                    transition-all duration-200
+                  "
+                >
+                  <i
+                    className={`${item.icon} text-xl text-gray-400 group-hover:text-white`}
+                  />
 
-          <nav className="flex-1 space-y-1">
-            {menus.map((item, index) => (
-              <Link
-                key={index}
-                to={item.href}
-                className="
-                  group flex items-center gap-4 px-4 py-3 rounded-xl
-                  text-gray-300
-                  hover:text-white
-                  hover:bg-white/10
-                  transition-all duration-200
-                "
-              >
-                <i
-                  className={`${item.icon} text-xl text-gray-400 group-hover:text-white`}
-                />
-                <span className="capitalize text-sm font-medium">
-                  {item.label}
-                </span>
-              </Link>
-            ))}
-          </nav>
+                  {leftAsideSize !== collapseSize && (
+                    <span className="capitalize text-sm font-medium whitespace-nowrap">
+                      {item.label}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </nav>
 
-          <div className="my-6 h-px bg-white/10" />
+        <div className="my-6 h-px bg-white/10" />
 
           <button
+            title={leftAsideSize === collapseSize ? "Logout" : ""}
             className="
-              flex items-center gap-4 px-4 py-3 rounded-xl
+              flex items-center gap-4  py-3 rounded-xl
               text-red-300
               hover:text-red-400
               hover:bg-red-500/10
@@ -76,7 +90,10 @@ const Layout = () => {
             "
           >
             <i className="ri-logout-circle-r-line text-xl" />
-            <span className="text-sm font-medium">Logout</span>
+
+            {leftAsideSize !== collapseSize && (
+              <span className="text-sm font-medium">Logout</span>
+            )}
           </button>
         </div>
       </aside>
@@ -84,14 +101,15 @@ const Layout = () => {
       <section
         className="min-h-screen p-8"
         style={{
+          width: `calc(100% - ${leftAsideSize+rightAsideSize}px)`,
           marginLeft: leftAsideSize,
-          marginRight: rightAsideSize,
+          transition: '0.2s'
         }}
       >
         <Card 
           title={
               <div className="flex items-center gap-4">
-                <button className="bg-gray-100 w-10 h-10 rounded-full hover:bg-salte-200">
+                <button className="bg-gray-100 w-10 h-10 rounded-full hover:bg-salte-200" onClick={()=>setLeftAsideSize(leftAsideSize === 350 ? collapseSize : 350)}>
                   <i className="ri-arrow-left-line"></i>
                 </button>
                 <h1>{pathname.split("/").pop()}</h1>
