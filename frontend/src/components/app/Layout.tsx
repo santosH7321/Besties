@@ -121,40 +121,69 @@ const Layout = () => {
         </Card>
       </section>
 
-      <aside
-        className="fixed top-0 right-0 h-full p-8 overflow-auto"
-        style={{ width: rightAsideSize }}
-      >
-        <Card title="My Friends" divider>
-          <div className="space-y-3">
-            {Array(20).fill(0).map((item, index) => (
-              <div
-                key={index}
-                className="
-                  flex items-center
-                  rounded-xl
-                  px-3 py-2
-                  hover:bg-gray-50
-                  transition-colors
-                  cursor-pointer
-                "
-              >
-                <Avatar
-                  size="md"
-                  image="/images/myimage.jpeg"
-                  title="Santosh kumar"
-                  subtitle={
-                    <div className="flex items-center gap-2">
-                      <span className="relative flex h-2 w-2">
-                        <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                      </span>
-                      <p className="text-gray-500 text-xs">Online</p>
-                    </div>
-                  }
-                />
-              </div>
-            ))}
+      <aside 
+        className="bg-white fixed top-0 right-0 h-full p-8 overflow-auto space-y-8" 
+        style={{
+        width: rightAsideSize,
+        transition: '0.2s'
+        }}>
+        <div className="h-62.5 overflow-auto">
+          <Card title="Suggested" divider>
+            <div className="space-y-8">
+              {
+                Array(20).fill(0).map((item, index)=>(
+                  <div key={index} className="flex gap-4">
+                    <img src="/images/myimage.jpeg" alt="jpeg" className="w-16 h-16 rounded object-cover" />
+                      <div>
+                        <h1 className="text-black font-medium">Santosh Kumar</h1>
+                          <button className="font-medium bg-green-400 text-white rounded px-2 py-1 text-xs hover:bg-green-500 mt-1">
+                            <i className="ri-user-add-line mr-1"></i>
+                              Add Friend
+                          </button>
+                      </div>
+                  </div>
+                  ))
+              }
+            </div>
+          </Card>
+        </div>
+        <Card title="Friends" divider>
+          <div className="space-y-5">
+            {
+              Array(20).fill(0).map((item, index)=>(
+                <div key={index} className="bg-gray-50 p-3 rounded-lg flex justify-between">
+                  <Avatar 
+                    size="md"
+                    image="/images/myimage.jpeg"
+                    title="Santosh kumar"
+                    subtitle={
+                    <small className={`${index % 2 === 0 ? 'text-zinc-400' : 'text-green-400'} font-medium`}>
+                      {index % 2 === 0 ? "Offline" : "Online"}
+                    </small>
+                    }
+                  />
+                  <div className="space-x-3">
+                    <Link to="/app/chat">
+                      <button className="hover:text-blue-600 text-blue-500" title="Chat">
+                        <i className="ri-chat-ai-line"></i>
+                      </button>
+                    </Link>
+                                    
+                    <Link to="/app/audio-chat">
+                        <button className="hover:text-green-500 text-green-400" title="Call">
+                          <i className="ri-phone-line"></i>
+                        </button>
+                    </Link>
+
+                    <Link to="/app/video-chat">
+                      <button className="hover:text-amber-600 text-amber-500" title="Video call">
+                        <i className="ri-video-on-ai-line"></i>
+                      </button>
+                    </Link>
+                  </div>
+                </div>
+              ))
+            }
           </div>
         </Card>
       </aside>
