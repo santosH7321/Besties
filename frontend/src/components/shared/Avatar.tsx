@@ -1,12 +1,13 @@
 import type { FC, ReactNode } from "react"
 
 interface AvatarInterface {
-    title?: string
+    title?: string | null
     subtitle?: ReactNode
     image?: string
     titleColor?: string
     subtitleColor?: string
     size?: "lg" | "md"
+    key?: string | number
 }
 
 const Avatar: FC<AvatarInterface> = ({size="lg", title, subtitle="Subtitle missing", image, titleColor="#000000", subtitleColor="#f5f5f5"}) => {

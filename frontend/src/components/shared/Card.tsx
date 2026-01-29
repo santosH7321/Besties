@@ -1,47 +1,35 @@
-import type { FC, ReactElement, ReactNode } from "react"
+import type { FC, ReactElement, ReactNode } from 'react'
 
 interface CardInterface {
   children?: ReactElement
   title?: ReactNode
   footer?: ReactElement
   divider?: boolean
+  key?: string | number
+  noPadding?: boolean
 }
 
-const Card: FC<CardInterface> = ({ children, title, footer, divider }) => {
+const Card: FC<CardInterface> = ({noPadding=false, key=0, children, title, footer, divider=false}) => {
   return (
-    <div
-      className="
-        bg-white
-        rounded-2xl
-        border border-gray-100
-        px-6 py-5
-        space-y-3
-        shadow-sm
-        hover:shadow-md
-        transition-shadow
-      "
-    >
-      {title && (
-        <h1 className="text-base font-semibold text-gray-900 capitalize">
-          {title}
-        </h1>
-      )}
-
-      {divider && (
-        <div className="h-px bg-gray-100 -mx-6 my-3" />
-      )}
-
-      {children && (
-        <div className="text-sm text-gray-600 leading-relaxed">
-          {children}
-        </div>
-      )}
-
-      {footer && (
-        <div className="pt-4 mt-4 border-t border-gray-100">
-          {footer}
-        </div>
-      )}
+    <div key={key} className={`bg-white shadow-lg ${noPadding ? '' : 'px-5 py-4'} rounded-lg border border-gray-100 space-y-2`}>
+      {
+        title &&
+        <h1 className='text-lg font-semibold capitalize'>{title}</h1>
+      }
+      {
+        divider &&
+        <div className='border-b border-b-gray-100 -mx-5 my-4' />
+      }
+      {
+        children &&
+        <div className='text-gray-500'>{children}</div>
+      }
+      {
+          footer &&
+          <div className='mt-4'>
+              {footer}
+          </div>
+      }
     </div>
   )
 }
