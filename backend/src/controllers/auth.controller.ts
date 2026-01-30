@@ -1,6 +1,21 @@
 import { Request, Response } from "express"
 import AuthModel from "../models/auth.model";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
+
+const accessTokenExpiry = '10m'
+
+interface PayloadInterface {
+    id: mongoose.Types.ObjectId
+    fullname: string
+    email: string
+    mobile: string
+}
+const generateToken = (payload: PayloadInterface) => {
+    const accessToken = jwt.sign(payload, process.env.AUTH_SECRET!, {expiresIn: accessTokenExpiry});
+    return accessToken;
+}
 
 export const signup = async (req: Request, res: Response) => {
     try {
@@ -22,6 +37,20 @@ export const login = async (req: Request, res: Response) => {
     if(!isLogin)
         throw new Error("Invalid Credentials email and password incorrect");
 
+    const payload = {
+        id: user._id,
+        fullname: user.fullname,
+        email: user.email,
+        mobile: user.mobile
+    }
+
+    const options = {
+        httpOnly: true,
+        maxAge: (10*60)
+    }
+
+    const accessToken = generateToken(payload)
+    res.cookie("accessToken", accessToken, options)
     res.json({message: "Login Success ✅"});
 }
 
