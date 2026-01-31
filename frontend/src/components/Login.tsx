@@ -2,8 +2,12 @@ import { Link } from "react-router-dom"
 import Button from "./shared/Button"
 import Card from "./shared/Card"
 import Input from "./shared/Input"
+import Context from "../Contex"
+import { useContext } from "react"
 
 const Login = () => {
+  const x = useContext(Context)
+  console.log(x)
   return (
     <div className="bg-gray-100 flex items-center justify-center h-screen">
       <div className="w-6/12 animate__animated animate__fadeIn">
