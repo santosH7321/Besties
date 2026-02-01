@@ -16,9 +16,9 @@ import { useState } from "react"
 
 
 const App = () => {
-  const [session, setSession] = useState(null);
+  const [email, setEmail] = useState(null);
   return (
-    <Context.Provider value={{session, setSession}}>
+    <Context.Provider value={{email, setEmail}}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />

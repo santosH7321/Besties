@@ -2,12 +2,9 @@ import { Link } from "react-router-dom"
 import Button from "./shared/Button"
 import Card from "./shared/Card"
 import Input from "./shared/Input"
-import Context from "../Contex"
-import { useContext } from "react"
+import Form from "./shared/Form"
 
 const Login = () => {
-  const x = useContext(Context)
-  console.log(x)
   return (
     <div className="bg-gray-100 flex items-center justify-center h-screen">
       <div className="w-6/12 animate__animated animate__fadeIn">
@@ -18,7 +15,7 @@ const Login = () => {
                 <h1 className="text-xl font-bold text-black">SIGN IN</h1>
                 <p className="text-gray-500">Start your first chat now !</p>
               </div>
-              <form className="space-y-6">
+              <Form className="space-y-6" onValue={(val)=>console.log(val)}>
                 <Input 
                   name="email"
                   placeholder="Email id"
@@ -31,7 +28,7 @@ const Login = () => {
                 />
 
                 <Button type="danger" icon="arrow-right-up-line">Sign in</Button>
-              </form>
+              </Form>
               <div className="flex gap-2">
                 <p>Don`t` have an account ?</p>
                 <Link to="/signup" className="text-green-400 font-medium hover:underline">Sign up</Link>
