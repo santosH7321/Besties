@@ -2,8 +2,18 @@ import { Link } from "react-router-dom"
 import Button from "./shared/Button"
 import Card from "./shared/Card"
 import Input from "./shared/Input"
+import Form, { type FormDataType } from "./shared/Form"
+import HttpInterceptor from "../lib/HttpInterceptor"
 
 const Signup = () => {
+  const signup = async (values: FormDataType) => {
+    try {
+      const {data} = await HttpInterceptor.post("/auth/signup", values)
+      console.log(data)
+    } catch (err) {
+      console.log(err)
+    }
+  }
   return (
     <div className="bg-gray-100 flex items-center justify-center h-screen">
       <div className="w-6/12 animate__animated animate__fadeIn">
@@ -14,7 +24,7 @@ const Signup = () => {
                 <h1 className="text-xl font-bold text-black">SIGN UP</h1>
                 <p className="text-gray-500">Start your first chat now !</p>
               </div>
-              <form className="space-y-6">
+              <Form className="space-y-6" onValue={signup}>
                 <Input 
                   name="fullname"
                   placeholder="Fullname"
@@ -37,7 +47,7 @@ const Signup = () => {
                 />
 
                 <Button type="danger" icon="arrow-right-up-line">Sign up</Button>
-              </form>
+              </Form>
               <div className="flex gap-2">
                 <p>Already have an account ?</p>
                 <Link to="/login" className="text-green-400 font-medium hover:underline">Sign in</Link>
