@@ -13,7 +13,7 @@ import Chat from "./components/app/Chat"
 import NotFound from "./components/NotFound"
 import Context from "./Contex"
 import { useState } from "react"
-
+import { ToastContainer } from "react-toastify"
 
 const App = () => {
   const [email, setEmail] = useState(null);
@@ -33,7 +33,8 @@ const App = () => {
             <Route path="chat" element={<Chat />} />
           </Route>
           <Route path="*" element={<NotFound />} />
-      </Routes>
+        </Routes>
+      <ToastContainer />
     </BrowserRouter>
   </Context.Provider>
   )
