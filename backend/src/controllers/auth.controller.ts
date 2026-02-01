@@ -46,7 +46,9 @@ export const login = async (req: Request, res: Response) => {
 
     const options = {
         httpOnly: true,
-        maxAge: (10*60)
+        maxAge: (10*60)*1000,
+        secure: false,
+        domain: "localhost"
     }
 
     const accessToken = generateToken(payload)
