@@ -21,39 +21,49 @@ export const signup = async (req: Request, res: Response) => {
     try {
         await AuthModel.create(req.body)
         res.json({message: "Signup Success ✅"});
-    } catch (err: any) {
-        res.status(500).json({message: err.message});
+    } catch (err: unknown) {
+        if(err instanceof Error)
+            res.status(500).json({message: err.message});
     }
 }
 
 export const login = async (req: Request, res: Response) => {
-    const {email, password} = req.body;
-    const user = await AuthModel.findOne({email});
-    if(!user){
-        throw new Error("User not found, please try to signup first")
-    }
+    try {
+        const {email, password} = req.body;
+        const user = await AuthModel.findOne({email});
+            if(!user){
+                return res.status(404).json({
+                message: "Invalid email and password"
+            });
+        }
 
-    const isLogin = await bcrypt.compare(password, user.password);
-    if(!isLogin)
-        throw new Error("Invalid Credentials email and password incorrect");
+        const isLogin = await bcrypt.compare(password, user.password);
+        if(!isLogin)
+            return res.status(401).json({
+            message: "Invalid Credentials email and password incorrect"
+        });
 
-    const payload = {
-        id: user._id,
-        fullname: user.fullname,
-        email: user.email,
-        mobile: user.mobile
-    }
+        const payload = {
+            id: user._id,
+            fullname: user.fullname,
+            email: user.email,
+            mobile: user.mobile
+        }
 
-    const options = {
-        httpOnly: true,
-        maxAge: (10*60)*1000,
-        secure: false,
-        domain: "localhost"
-    }
+        const options = {
+            httpOnly: true,
+            maxAge: 10*60*1000,
+            secure: false,
+        }
 
-    const accessToken = generateToken(payload)
-    res.cookie("accessToken", accessToken, options)
-    res.json({message: "Login Success ✅"});
+        const accessToken = generateToken(payload)
+        res.cookie("accessToken", accessToken, options)
+        res.json({message: "Login Success ✅"});    
+        }
+        catch (err: unknown) {
+            if(err instanceof Error)
+                res.status(500).json({message: err.message});
+        }
 }
 
 export const forgotPassword = (req: Request, res: Response) => {
