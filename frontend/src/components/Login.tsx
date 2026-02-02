@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import Button from "./shared/Button"
 import Card from "./shared/Card"
 import Input from "./shared/Input"
@@ -8,10 +8,12 @@ import { toast } from "react-toastify"
 import CatchError from "../lib/CatchError"
 
 const Login = () => {
+  const navigate = useNavigate()
   const login = async (value: FormDataType) => {
     try {
       const {data} = await HttpInterceptor.post("/auth/login", value)
       toast.success(data.message)
+      navigate("/app")
     } 
     catch (err: unknown) {
       CatchError(err, "top-right")
