@@ -14,23 +14,26 @@ import NotFound from "./components/NotFound"
 import Context from "./Contex"
 import { useState } from "react"
 import { ToastContainer } from "react-toastify"
+import Guard from "./Guard"
 
 const App = () => {
-  const [email, setEmail] = useState(null);
+  const [session, setSession] = useState(null);
   return (
-    <Context.Provider value={{email, setEmail}}>
+    <Context.Provider value={{session, setSession}}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/app" element={<Layout />}>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="posts" element={<Post />} />
-            <Route path="friends" element={<Friends />} />
-            <Route path="video-chat" element={<Video />} />
-            <Route path="audio-chat" element={<Audio />} />
-            <Route path="chat" element={<Chat />} />
+          <Route element={<Guard />}>
+            <Route path="/app" element={<Layout />}>
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="posts" element={<Post />} />
+              <Route path="friends" element={<Friends />} />
+              <Route path="video-chat" element={<Video />} />
+              <Route path="audio-chat" element={<Audio />} />
+              <Route path="chat" element={<Chat />} />
+            </Route>
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

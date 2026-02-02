@@ -1,14 +1,16 @@
 import { Link, Outlet, useLocation } from "react-router-dom"
 import Avatar from "../shared/Avatar"
 import Card from "../shared/Card"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import Dashboard from "./Dashboard"
+import Context from "../../Contex"
 
 const Layout = () => {
   const [leftAsideSize, setLeftAsideSize] = useState(350)
   const rightAsideSize = 450
   const collapseSize = 140
   const {pathname} = useLocation()
+  const {session} = useContext(Context)
 
   const menus = [
         {
@@ -40,13 +42,16 @@ const Layout = () => {
                 <i className="ri-user-fill text-xl text-white animate__animated animate__fadeIn" title="profile"></i>
                 :
                 <div className="animate__animated animate__fadeIn">
-                  <Avatar
-                    title="Santosh Kumar"
-                    subtitle="Full-Stack Developer"
-                    image="/images/myimage.jpeg"
-                    titleColor="white"
-                    subtitleColor="#c7c7ff"
-                  />
+                  {
+                    session && 
+                    <Avatar
+                      title={session.fullname}
+                      subtitle={session.email}
+                      image="/images/myimage.jpeg"
+                      titleColor="white"
+                      subtitleColor="#c7c7ff"
+                    />
+                  }
                 </div>
               }
             </div>
