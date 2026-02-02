@@ -1,6 +1,6 @@
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3"
+import { GetObjectCommand, HeadObjectCommand, S3Client } from "@aws-sdk/client-s3"
 import {Request, Response} from "express"
-import { CatchError } from "../utils/error"
+import { CatchError, TryError } from "../utils/error"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 
 
@@ -12,12 +12,36 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
                 secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
             }
     })
+
+    const isFileExist = async (path: string) => {
+        try {
+            const command = new HeadObjectCommand({
+                Bucket: process.env.S3_BUCKET,
+                Key: path
+            })
+            await conn.send(command)
+            return true
+        } catch (err) {
+            return false
+        }
+    }
 export const downloadFile = async (req: Request, res: Response) => {
     try {
-        const command = new GetObjectCommand({
+        const path = req.body?.path
+        if(!path)
+            throw TypeError("Failed to generate download url because path is missing")
+
+        const isExist = await isFileExist(path)
+        if(!isExist){
+            throw TryError("File doesn't exists", 404)
+        }
+        const option = {
             Bucket: process.env.S3_BUCKET,
-            Key: 'demo.jpeg'
-        })
+            Key: path
+        }
+
+        const command = new GetObjectCommand(option)
+
         const url = await getSignedUrl(conn, command, {expiresIn: 60})
         res.json({url})
     }
