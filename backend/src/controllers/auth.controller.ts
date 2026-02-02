@@ -3,6 +3,7 @@ import AuthModel from "../models/auth.model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import { CatchError, TryError } from "../utils/error";
 
 const accessTokenExpiry = '10m'
 
@@ -31,17 +32,14 @@ export const login = async (req: Request, res: Response) => {
     try {
         const {email, password} = req.body;
         const user = await AuthModel.findOne({email});
-            if(!user){
-                return res.status(404).json({
-                message: "Invalid email and password"
-            });
-        }
 
+        if(!user)
+        throw TryError("Invalid email and password", 404)
+        
         const isLogin = await bcrypt.compare(password, user.password);
+
         if(!isLogin)
-            return res.status(401).json({
-            message: "Invalid Credentials email and password incorrect"
-        });
+        throw TryError("Invalid Credentials email and password incorrect", 401)
 
         const payload = {
             id: user._id,
@@ -58,11 +56,10 @@ export const login = async (req: Request, res: Response) => {
 
         const accessToken = generateToken(payload)
         res.cookie("accessToken", accessToken, options)
-        res.json({message: "Login Success ✅"});    
+        res.json({message: "Login Success 🎉"});    
         }
         catch (err: unknown) {
-            if(err instanceof Error)
-                res.status(500).json({message: err.message});
+            CatchError(err, res, "Login failed please try after somtime")
         }
 }
 
