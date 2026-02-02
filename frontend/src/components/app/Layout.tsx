@@ -4,6 +4,7 @@ import Card from "../shared/Card"
 import { useContext, useState } from "react"
 import Dashboard from "./Dashboard"
 import Context from "../../Contex"
+import HttpInterceptor from "../../lib/HttpInterceptor"
 
 const Layout = () => {
   const [leftAsideSize, setLeftAsideSize] = useState(350)
@@ -30,6 +31,35 @@ const Layout = () => {
         }
   ]
 
+  const uploadImage = () => {
+    const input = document.createElement("input")
+    input.type = "file"
+    input.accept = "image/*"
+    input.click()
+    input.onchange = async () => {
+      if(!input.files) 
+        return
+
+      const file = input.files[0]
+      const payload = {
+        path: "demo/hello.png",
+        type: file.type
+      }
+      try {
+        const options = {
+          headers: {
+            "Contect-Type": file.type
+          }
+        }
+        const {data} = await HttpInterceptor.post("/storage/upload", payload)
+        await HttpInterceptor.put(data.url, file, options)
+        console.log("Success")
+      }
+      catch(err) {
+        console.log(err)
+      }
+    }
+  }
   return (
     <div className="min-h-screen">
       <aside
@@ -50,6 +80,7 @@ const Layout = () => {
                       image="/images/myimage.jpeg"
                       titleColor="white"
                       subtitleColor="#c7c7ff"
+                      onClick={uploadImage}
                     />
                   }
                 </div>
