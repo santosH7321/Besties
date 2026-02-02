@@ -2,17 +2,12 @@ import { Request, Response } from "express"
 import AuthModel from "../models/auth.model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
 import { CatchError, TryError } from "../utils/error";
+import { PayloadInterface } from "../middleware/auth.middleware";
 
 const accessTokenExpiry = '10m'
 
-interface PayloadInterface {
-    id: mongoose.Types.ObjectId
-    fullname: string
-    email: string
-    mobile: string
-}
+
 const generateToken = (payload: PayloadInterface) => {
     const accessToken = jwt.sign(payload, process.env.AUTH_SECRET!, {expiresIn: accessTokenExpiry});
     return accessToken;

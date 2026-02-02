@@ -10,6 +10,7 @@ import AuthRouter from "./router/auth.router";
 const app = express();
 import cookieParser from "cookie-parser";
 import StorageRouter from "./router/storage.router";
+import AuthMiddleware from "./middleware/auth.middleware";
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
@@ -26,4 +27,4 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 app.use("/auth", AuthRouter);
-app.use("/storage", StorageRouter);
+app.use("/storage",AuthMiddleware, StorageRouter);
