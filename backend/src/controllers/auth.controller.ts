@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { CatchError, TryError } from "../utils/error";
 import { PayloadInterface, SessionInterface } from "../middleware/auth.middleware";
+import { downloadObject } from "../utils/s3";
 
 const accessTokenExpiry = '10m'
 
@@ -86,8 +87,8 @@ export const updateProfilePicture = async (req: SessionInterface, res: Response)
             _id: req.session.id
         }, {$set: {image: path}})
         
-
-        res.json({image: path})
+        const url = await downloadObject(path)
+        res.json({image: url})
     }
     catch (err) {
         CatchError(err, res, "Failed to update profile picture")
