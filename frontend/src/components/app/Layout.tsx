@@ -5,13 +5,14 @@ import { useContext, useState } from "react"
 import Dashboard from "./Dashboard"
 import Context from "../../Contex"
 import HttpInterceptor from "../../lib/HttpInterceptor"
+import {v4 as uuid} from "uuid"
 
 const Layout = () => {
   const [leftAsideSize, setLeftAsideSize] = useState(350)
   const rightAsideSize = 450
   const collapseSize = 140
   const {pathname} = useLocation()
-  const {session} = useContext(Context)
+  const {session, setSession} = useContext(Context)
 
   const menus = [
         {
@@ -41,8 +42,9 @@ const Layout = () => {
         return
 
       const file = input.files[0]
+      const path = `profile-pictures/${uuid()}.png`
       const payload = {
-        path: "demo/hello.png",
+        path,
         type: file.type
       }
       try {
@@ -53,10 +55,11 @@ const Layout = () => {
         }
         const {data} = await HttpInterceptor.post("/storage/upload", payload)
         await HttpInterceptor.put(data.url, file, options)
-        console.log("Success")
+        const {data: user} = await HttpInterceptor.put("/auth/update-profile", {path})
+        setSession({...session, image: user.image})
       }
-      catch(err) {
-        console.log(err)
+      catch(err) {  
+        console.log(err)  
       }
     }
   }
@@ -77,7 +80,7 @@ const Layout = () => {
                     <Avatar
                       title={session.fullname}
                       subtitle={session.email}
-                      image="/images/myimage.jpeg"
+                      image={session.image || "/images/myimage.jpeg"}
                       titleColor="white"
                       subtitleColor="#c7c7ff"
                       onClick={uploadImage}
