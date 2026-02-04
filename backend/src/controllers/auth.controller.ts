@@ -3,7 +3,7 @@ import AuthModel from "../models/auth.model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { CatchError, TryError } from "../utils/error";
-import { PayloadInterface } from "../middleware/auth.middleware";
+import { PayloadInterface, SessionInterface } from "../middleware/auth.middleware";
 
 const accessTokenExpiry = '10m'
 
@@ -73,5 +73,23 @@ export const getSession = async (req: Request, res: Response) => {
     }
     catch (err){
         CatchError(err, res, "Invalid Session")
+    }
+}
+
+export const updateProfilePicture = async (req: SessionInterface, res: Response) => {
+    try {
+        const path = req.body.path;
+        if(!path || !req.session)
+            throw TryError("Failed to update profile picture", 400);
+
+        await AuthModel.updateOne({
+            _id: req.session.id
+        }, {$set: {image: path}})
+        
+
+        res.json({image: path})
+    }
+    catch (err) {
+        CatchError(err, res, "Failed to update profile picture")
     }
 }
