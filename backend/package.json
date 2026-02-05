@@ -31,6 +31,8 @@
     "@aws-sdk/s3-request-presigner": "^3.980.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "moment": "^2.30.1",
+    "uuid": "^13.0.0"
   }
 }

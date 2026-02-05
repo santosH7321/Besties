@@ -5,13 +5,30 @@ import jwt from "jsonwebtoken";
 import { CatchError, TryError } from "../utils/error";
 import { PayloadInterface, SessionInterface } from "../middleware/auth.middleware";
 import { downloadObject } from "../utils/s3";
+import {v4 as uuid} from "uuid"
 
 const accessTokenExpiry = '10m'
+const tenMinuteInMs = (10*60*1000);
+const sevenDayInMs = (7*24*60*60)*1000
 
+type TokenType = "at" | "rt";
 
 const generateToken = (payload: PayloadInterface) => {
     const accessToken = jwt.sign(payload, process.env.AUTH_SECRET!, {expiresIn: accessTokenExpiry});
-    return accessToken;
+    const refreshToken = uuid();
+
+    return {
+        accessToken,
+        refreshToken
+    }
+}
+
+const getOptions = (tokenType: TokenType) => {
+    return {
+            httpOnly: true,
+            maxAge: tokenType === "at" ? tenMinuteInMs : sevenDayInMs,
+            secure: false,
+        }
 }
 
 export const signup = async (req: Request, res: Response) => {
@@ -45,14 +62,11 @@ export const login = async (req: Request, res: Response) => {
             image: user.image ? await downloadObject(user.image) : null
         }
 
-        const options = {
-            httpOnly: true,
-            maxAge: 10*60*1000,
-            secure: false,
-        }
+        
 
-        const accessToken = generateToken(payload)
-        res.cookie("accessToken", accessToken, options)
+        const {accessToken, refreshToken} = generateToken(payload)
+        res.cookie("accessToken", accessToken, getOptions("at"))
+        res.cookie("refreshToken", refreshToken, getOptions("rt"))
         res.json({message: "Login Success 🎉"});    
         }
         catch (err: unknown) {
@@ -60,8 +74,13 @@ export const login = async (req: Request, res: Response) => {
         }
 }
 
-export const forgotPassword = (req: Request, res: Response) => {
-    res.send("Forgot Password Success ✅");
+export const refreshToken = (req: Request, res: Response) => {
+    try {
+        res.send("Hello");
+    } 
+    catch (err) {
+        CatchError(err, res, "Failed to refresh token")
+    }
 }
 
 export const getSession = async (req: Request, res: Response) => {

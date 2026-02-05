@@ -28,11 +28,22 @@ const authSchema = new Schema({
         type: String,
         required: true,
         trim: true
+    },
+    refreshToken: {
+        type: String
+    },
+    expiry: {
+        type: Date
     }
 }, {timestamps: true});
 
 authSchema.pre("save", async function() {
     this.password = await bcrypt.hash(this.password.toString(), 12);
+})
+
+authSchema.pre("save", function(){
+    this.refreshToken = null
+    this.expiry =  null
 })
 
 const AuthModel = model("Auth", authSchema);
