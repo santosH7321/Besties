@@ -2,7 +2,7 @@ import { useContext, useEffect } from "react"
 import { Navigate, Outlet } from "react-router-dom"
 import Context from "../Contex"
 import HttpInterceptor from "../lib/HttpInterceptor"
-const AuthGuard = () => {
+const RedirectGuard = () => {
     const {session, setSession } = useContext(Context)
 
     useEffect(() => {
@@ -19,10 +19,10 @@ const AuthGuard = () => {
         }
     }
     if(session === null) return null
-    if(session === false) return <Navigate to="/login" />
+    if(session === false) return <Outlet />
   return (
-    <Outlet />
+    <Navigate to="/app" />
   )
 }
 
-export default AuthGuard
+export default RedirectGuard
