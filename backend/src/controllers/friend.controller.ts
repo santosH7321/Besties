@@ -13,3 +13,14 @@ export const addFriend = async (req: SessionInterface, res: Response) => {
         CatchError(err, res, "Failed to send friend request");
     }
 }
+
+export const fetchFriend = async (req: SessionInterface, res: Response) => {
+    try {
+        const user = req.session?.id;
+        const friends = await FriendModel.find({user})
+        res.json(friends)
+    }
+    catch(err){
+        CatchError(err, res, "Failed to send friend request");
+    }
+}
