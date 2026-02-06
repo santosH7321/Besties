@@ -13,7 +13,7 @@ const Login = () => {
     try {
       const {data} = await HttpInterceptor.post("/auth/login", value)
       toast.success(data.message)
-      navigate("/app/dashboard")
+      navigate("/app")
     } 
     catch (err: unknown) {
       CatchError(err, "top-right")

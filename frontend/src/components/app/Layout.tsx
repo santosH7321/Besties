@@ -1,13 +1,14 @@
-import { Link, Outlet, useLocation } from "react-router-dom"
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
 import Avatar from "../shared/Avatar"
 import Card from "../shared/Card"
-import { useContext, useState } from "react"
-import Dashboard from "./Dashboard"
+import { useContext, useEffect, useState } from "react"
 import Context from "../../Contex"
 import HttpInterceptor from "../../lib/HttpInterceptor"
 import {v4 as uuid} from "uuid"
 import useSWR, { mutate } from "swr"
 import Fetcher from "../../lib/Fetcher"
+import CatchError from "../../lib/CatchError"
+import Dashboard from "./Dashboard"
 
 
 const EightMinInMs = 8*60*1000;
@@ -16,6 +17,7 @@ const Layout = () => {
   const rightAsideSize = 450
   const collapseSize = 140
   const {pathname} = useLocation()
+  const navigate = useNavigate();
 
   const {error} = useSWR("/auth/refresh-token", Fetcher, {
     refreshInterval: EightMinInMs,
@@ -24,6 +26,12 @@ const Layout = () => {
   const {session, setSession} = useContext(Context)
 
 
+
+  useEffect(() => {
+    if(error){
+      logout();
+    }
+  }, [error])
 
   const menus = [
         {
@@ -42,6 +50,17 @@ const Layout = () => {
             label: "friends"
         }
   ]
+
+  const logout = async () => {
+    try {
+      await HttpInterceptor.post("/auth/logout");
+      navigate("/login")
+    }
+    catch(err) {
+      CatchError(err)
+    }
+  }
+
 
   const uploadImage = () => {
     const input = document.createElement("input")
@@ -132,6 +151,7 @@ const Layout = () => {
         <div className="my-6 h-px bg-white/10" />
 
           <button
+            onClick={logout}
             title={leftAsideSize === collapseSize ? "Logout" : ""}
             className="
               flex items-center gap-4  py-3 rounded-xl
@@ -170,6 +190,7 @@ const Layout = () => {
             divider
           >
             <Outlet />
+          <Dashboard/>
         </Card>
       </section>
 

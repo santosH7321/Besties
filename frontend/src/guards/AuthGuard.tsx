@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react"
-import HttpInterceptor from "./lib/HttpInterceptor"
-import Context from "./Contex"
 import { Navigate, Outlet } from "react-router-dom"
+import Context from "../Contex"
+import HttpInterceptor from "../lib/HttpInterceptor"
 const Guard = () => {
     const {session, setSession } = useContext(Context)
 

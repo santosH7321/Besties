@@ -14,7 +14,8 @@ import NotFound from "./components/NotFound"
 import Context from "./Contex"
 import { useState } from "react"
 import { ToastContainer } from "react-toastify"
-import Guard from "./Guard"
+import Guard from "./guards/AuthGuard"
+
 
 const App = () => {
   const [session, setSession] = useState(null);
