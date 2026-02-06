@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { addFriend, fetchFriend } from "../controllers/friend.controller";
+import { addFriends, fetchFriends, suggestedFriends } from "../controllers/friend.controller";
 
 const FriendRouter = Router();
 
-FriendRouter.post("/", addFriend);
-FriendRouter.get("/", fetchFriend);
+FriendRouter.post("/", addFriends);
+FriendRouter.get("/", fetchFriends);
+FriendRouter.get("/suggestion", suggestedFriends);
 
 export default FriendRouter;
