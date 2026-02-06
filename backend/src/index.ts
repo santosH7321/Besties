@@ -11,6 +11,7 @@ const app = express();
 import cookieParser from "cookie-parser";
 import StorageRouter from "./router/storage.router";
 import AuthMiddleware from "./middleware/auth.middleware";
+import FriendRouter from "./router/friend.router";
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
@@ -28,3 +29,4 @@ app.use(express.urlencoded({extended: true}));
 
 app.use("/auth", AuthRouter);
 app.use("/storage",AuthMiddleware, StorageRouter);
+app.use("/friend", AuthMiddleware, FriendRouter);
