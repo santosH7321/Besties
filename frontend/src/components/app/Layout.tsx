@@ -9,6 +9,7 @@ import useSWR, { mutate } from "swr"
 import Fetcher from "../../lib/Fetcher"
 import CatchError from "../../lib/CatchError"
 import Dashboard from "./Dashboard"
+import FriendSuggestion from "./FriendSuggestion"
 
 
 const EightMinInMs = 8*60*1000;
@@ -208,52 +209,7 @@ const Layout = () => {
         }}
       >
 
-        <div className="h-64 overflow-y-auto pr-2">
-          <Card title="Suggested" divider>
-            <div className="space-y-5">
-              {
-                Array(20).fill(0).map((item, index)=>(
-                  <div 
-                    key={index} 
-                    className="
-                      flex gap-3 items-center
-                      p-2 rounded-xl
-                      hover:bg-gray-50
-                      transition
-                    "
-                  >
-                    <img 
-                      src="/images/myimage.jpeg" 
-                      alt="jpeg" 
-                      className="w-14 h-14 rounded-xl object-cover shadow-sm"
-                    />
-
-                    <div className="flex-1">
-                      <h1 className="text-gray-800 font-semibold text-sm">
-                        Santosh Kumar
-                      </h1>
-
-                      <button className="
-                        mt-1
-                        text-xs font-semibold
-                        bg-green-500
-                        hover:bg-green-600
-                        text-white
-                        px-3 py-1
-                        rounded-full
-                        transition
-                        shadow-sm
-                      ">
-                        <i className="ri-user-add-line mr-1"></i>
-                        Add Friend
-                      </button>
-                    </div>
-                  </div>
-                ))
-              }
-            </div>
-          </Card>
-        </div>
+        <FriendSuggestion />
 
         <Card title="Friends" divider>
           <div className="space-y-3">
