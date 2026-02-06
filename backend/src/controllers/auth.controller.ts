@@ -6,6 +6,7 @@ import { CatchError, TryError } from "../utils/error";
 import { PayloadInterface, SessionInterface } from "../middleware/auth.middleware";
 import { downloadObject } from "../utils/s3";
 import {v4 as uuid} from "uuid"
+import moment from "moment";
 
 const accessTokenExpiry = '10m'
 const tenMinuteInMs = (10*60*1000);
@@ -52,7 +53,8 @@ export const login = async (req: Request, res: Response) => {
         const isLogin = await bcrypt.compare(password, user.password);
 
         if(!isLogin)
-        throw TryError("Invalid Credentials email and password incorrect", 401)
+            throw TryError("Invalid Credentials email and password incorrect", 401)
+
 
         const payload = {
             id: user._id,
@@ -62,9 +64,13 @@ export const login = async (req: Request, res: Response) => {
             image: user.image ? await downloadObject(user.image) : null
         }
 
-        
-
         const {accessToken, refreshToken} = generateToken(payload)
+        await AuthModel.updateOne({_id: user._id}, {$set: {
+            refreshToken,
+            expiry: moment().add(7, 'days').toDate()
+        }})
+        
+        
         res.cookie("accessToken", accessToken, getOptions("at"))
         res.cookie("refreshToken", refreshToken, getOptions("rt"))
         res.json({message: "Login Success 🎉"});    
@@ -74,9 +80,21 @@ export const login = async (req: Request, res: Response) => {
         }
 }
 
-export const refreshToken = (req: Request, res: Response) => {
+export const refreshToken = async (req: SessionInterface, res: Response) => {
     try {
-        res.send("Hello");
+        if(!req.session)
+            throw TryError("Failed to refresh token", 401)
+
+        const {accessToken, refreshToken} = generateToken(req.session);
+        
+        await AuthModel.updateOne({_id: req.session.id}, {$set: {
+            refreshToken,
+            expiry: moment().add(7, "days").toString()
+        }})
+
+        res.cookie("accessToken", accessToken, getOptions("at"))
+        res.cookie("refreshToken", refreshToken, getOptions("rt"))
+        res.json({message: "Token Refreshed"}); 
     } 
     catch (err) {
         CatchError(err, res, "Failed to refresh token")

@@ -21,7 +21,7 @@ const AuthMiddleware = async (req: SessionInterface, res: Response, next: NextFu
         const accessToken = req.cookies.accessToken
 
         if(!accessToken){
-            throw TryError("Unauthorized", 401)
+            throw TryError("Faield to authenticate user", 401)
         }
         const payload = await jwt.verify(accessToken, process.env.AUTH_SECRET!) as JwtPayload
         
@@ -34,7 +34,7 @@ const AuthMiddleware = async (req: SessionInterface, res: Response, next: NextFu
         }
     }   
     catch (err) {
-        CatchError(err, res, "Unauthorized")
+        CatchError(err, res, "Faield to authorized user")
     }
 
 }
