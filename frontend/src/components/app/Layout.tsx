@@ -6,13 +6,24 @@ import Dashboard from "./Dashboard"
 import Context from "../../Contex"
 import HttpInterceptor from "../../lib/HttpInterceptor"
 import {v4 as uuid} from "uuid"
+import useSWR, { mutate } from "swr"
+import Fetcher from "../../lib/Fetcher"
 
+
+const EightMinInMs = 8*60*1000;
 const Layout = () => {
   const [leftAsideSize, setLeftAsideSize] = useState(350)
   const rightAsideSize = 450
   const collapseSize = 140
   const {pathname} = useLocation()
+
+  const {error} = useSWR("/auth/refresh-token", Fetcher, {
+    refreshInterval: EightMinInMs,
+    shouldRetryOnError: false
+  })
   const {session, setSession} = useContext(Context)
+
+
 
   const menus = [
         {
@@ -42,7 +53,7 @@ const Layout = () => {
         return
 
       const file = input.files[0]
-      const path = `profile-pictures/${uuid()}.png`
+      const path = `profile-pictures/${uuid()}.jpeg`
       const payload = {
         path,
         type: file.type
@@ -57,6 +68,7 @@ const Layout = () => {
         await HttpInterceptor.put(data.url, file, options)
         const {data: user} = await HttpInterceptor.put("/auth/update-profile", {path})
         setSession({...session, image: user.image})
+        mutate("/auth/refresh-token")
       }
       catch(err) {  
         console.log(err)  
@@ -158,7 +170,6 @@ const Layout = () => {
             divider
           >
             <Outlet />
-          <Dashboard />
         </Card>
       </section>
 
