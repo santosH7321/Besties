@@ -29,7 +29,8 @@ export const fetchFriends = async (req: SessionInterface, res: Response) => {
 export const suggestedFriends = async (req: SessionInterface, res: Response) => {
     try {
         const friends = await AuthModel.aggregate([
-            {$sample: {size: 5}}
+            {$sample: {size: 5}},
+            {$project: {fullname: 1, image: 1}}
         ])
         res.json(friends);
     }
