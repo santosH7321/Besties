@@ -69,14 +69,14 @@ const Layout = () => {
     input.accept = "image/*"
     input.click()
     input.onchange = async () => {
-      if(!input.files) 
-        return
+      if(!input.files) return
 
       const file = input.files[0]
       const path = `profile-pictures/${uuid()}.jpeg`
       const payload = {
         path,
-        type: file.type
+        type: file.type,
+        status: "public-read"
       }
       try {
         const options = {

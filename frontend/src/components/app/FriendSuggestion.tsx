@@ -29,7 +29,7 @@ const FriendSuggestion = () => {
                       "
                     >
                       <img 
-                        src="/images/myimage.jpeg" 
+                        src={item.image || "/images/myimage.jpeg"} 
                         alt="jpeg" 
                         className="w-14 h-14 rounded-xl object-cover shadow-sm"
                       />
