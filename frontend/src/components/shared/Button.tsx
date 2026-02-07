@@ -17,9 +17,10 @@ interface ButtonInterface {
     onClick?: ()=>void
     icon?: string
     key?: string | number
+    loading?: boolean
 }
 
-const Button: FC<ButtonInterface> = ({key=0, children="Submit", type="primary", onClick, icon})=>{
+const Button: FC<ButtonInterface> = ({key=0, children="Submit", type="primary", onClick, icon, loading=false})=>{
     return (
         <button key={key} className={ButtonModel[type]} onClick={onClick}>
             {
