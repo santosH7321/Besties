@@ -32,6 +32,7 @@ const AuthMiddleware = async (req: SessionInterface, res: Response, next: NextFu
             mobile: payload.mobile,
             image: payload.image
         }
+        next()
     }   
     catch (err) {
         CatchError(err, res, "Faield to authorized user")

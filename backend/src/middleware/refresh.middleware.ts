@@ -32,7 +32,6 @@ const RefreshToken = async (req: SessionInterface, res: Response, next: NextFunc
             mobile: user.mobile,
             image: user.image ?? null
         }
-
         next();
         
     }
