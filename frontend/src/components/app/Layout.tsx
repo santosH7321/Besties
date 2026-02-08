@@ -69,10 +69,11 @@ const Layout = () => {
     input.accept = "image/*"
     input.click()
     input.onchange = async () => {
-      if(!input.files) return
+      if(!input.files) 
+        return
 
       const file = input.files[0]
-      const path = `profile-pictures/${uuid()}.jpeg`
+      const path = `profile-pictures/${uuid()}.png`
       const payload = {
         path,
         type: file.type,
@@ -86,7 +87,7 @@ const Layout = () => {
         }
         const {data} = await HttpInterceptor.post("/storage/upload", payload)
         await HttpInterceptor.put(data.url, file, options)
-        const {data: user} = await HttpInterceptor.put("/auth/update-profile", {path})
+        const {data: user} = await HttpInterceptor.put("/auth/profile-picture", {path})
         setSession({...session, image: user.image})
         mutate("/auth/refresh-token")
       }
@@ -190,8 +191,12 @@ const Layout = () => {
             } 
             divider
           >
-            <Outlet />
-          <Dashboard/>
+            {
+              pathname === "/app" ?
+                  <Dashboard />
+                    :
+                  <Outlet />
+            }
         </Card>
       </section>
 
