@@ -69,3 +69,18 @@ export const suggestedFriends = async (req: SessionInterface, res: Response)=>{
         CatchError(err, res, "Failed to send friend request")
     }
 }
+
+export const friendRequest = async (req: SessionInterface, res: Response)=>{
+    try {
+        if(!req.session)
+            throw TryError("Failed to fetch friends request")
+
+        const friends = await FriendModel.find({friend: req.session.id, status: "requested"})
+        .populate("user", "fullname image")
+        res.json(friends)
+    }
+    catch(err)
+    {
+        CatchError(err, res, "Failed to fetch friend request")
+    }
+}
