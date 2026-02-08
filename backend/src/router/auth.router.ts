@@ -10,7 +10,7 @@ AuthRouter.post("/login", login);
 AuthRouter.post("/logout", logout);
 AuthRouter.get("/refresh-token",RefreshToken, refreshToken);
 AuthRouter.get("/session", getSession);
-AuthRouter.put("/update-profile",AuthMiddleware, updateProfilePicture);
+AuthRouter.put("/profile-picture",AuthMiddleware, updateProfilePicture);
 
 
 export default AuthRouter;
