@@ -1,6 +1,6 @@
 import mongoose, { Schema, model } from "mongoose";
 
-const friendSchem = new Schema({
+const friendSchema = new Schema({
     user: {
         type: mongoose.Types.ObjectId,
         ref: "Auth"
@@ -11,15 +11,30 @@ const friendSchem = new Schema({
     },
     status: {
         type: String,
-        enum: ['request', 'rejected', 'accepted'],
+        enum: ['request', 'accepted'],
         default: "requested"
-    },
-    type: {
-        type: String,
-        enum: ['send', 'recieved'],
-        default: 'send'
     }
 }, {timestamps: true});
 
-const FriendModel = model("Friend", friendSchem);
+friendSchema.pre("save", async function () {
+    try {
+        const count = await model("Friend").countDocuments({
+        user: this.user,
+        friend: this.friend,
+        });
+
+        if (count > 0) {
+            throw new Error("Friend request already sent");
+        }
+    }
+    catch(err)
+    {
+        throw new Error("Failed to send friend request");
+    }
+});
+
+
+
+
+const FriendModel = model("Friend", friendSchema);
 export default FriendModel
