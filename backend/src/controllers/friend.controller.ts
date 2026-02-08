@@ -84,3 +84,20 @@ export const friendRequest = async (req: SessionInterface, res: Response)=>{
         CatchError(err, res, "Failed to fetch friend request")
     }
 }
+
+export const updateFriendStatus = async (req: SessionInterface, res: Response)=>{
+    try {
+        if(!req.session)
+            throw TryError("Failed to update friend status")
+
+        await FriendModel.updateOne(
+            {_id: req.params.id},
+            {$set: {status: req.body.status}}
+        )
+        res.json({message: "Friend status updated"})
+    }
+    catch(err)
+    {
+        CatchError(err, res, "Failed to fetch friend request")
+    }
+}
