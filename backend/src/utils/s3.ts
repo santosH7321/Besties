@@ -48,6 +48,6 @@ export const uploadObject = async (path: string, type: string, acl:ACLType = "pr
         ACL: acl
     })
     
-    const url = await getSignedUrl(conn, command, {expiresIn: 60})
+    const url = await getSignedUrl(conn, command, {expiresIn: 300})
     return url;
 }
