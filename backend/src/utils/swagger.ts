@@ -1,3 +1,4 @@
+import AuthApiDocs from "../swagger/auth.swagger";
 import ProductApiDoc from "../swagger/product.swagger";
 
 const SwaggerConfig = {
@@ -15,7 +16,8 @@ const SwaggerConfig = {
         {url: process.env.SERVER}
     ],
     paths: {
-        ...ProductApiDoc
+        ...ProductApiDoc,
+        ...AuthApiDocs
     }
 }
 
