@@ -1,4 +1,5 @@
 import AuthApiDocs from "../swagger/auth.swagger";
+import FriendApiDocs from "../swagger/friend.swagger";
 import ProductApiDoc from "../swagger/product.swagger";
 
 const SwaggerConfig = {
@@ -17,7 +18,8 @@ const SwaggerConfig = {
     ],
     paths: {
         ...ProductApiDoc,
-        ...AuthApiDocs
+        ...AuthApiDocs,
+        ...FriendApiDocs
     }
 }
 
