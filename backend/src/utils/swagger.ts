@@ -1,3 +1,5 @@
+import ProductApiDoc from "../swagger/product.swagger";
+
 const SwaggerConfig = {
     openapi: "3.0.0",
     info: {
@@ -11,7 +13,10 @@ const SwaggerConfig = {
     },
     servers: [
         {url: process.env.SERVER}
-    ]
+    ],
+    paths: {
+        ...ProductApiDoc
+    }
 }
 
 export default SwaggerConfig;
