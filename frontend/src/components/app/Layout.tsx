@@ -10,9 +10,12 @@ import Fetcher from "../../lib/Fetcher"
 import CatchError from "../../lib/CatchError"
 import Dashboard from "./Dashboard"
 import FriendSuggestion from "./FriendSuggestion"
+import FriendRequest from "./FriendRequest"
 
 
 const EightMinInMs = 8*60*1000;
+
+
 const Layout = () => {
   const [leftAsideSize, setLeftAsideSize] = useState(350)
   const rightAsideSize = 450
@@ -215,6 +218,7 @@ const Layout = () => {
       >
 
         <FriendSuggestion />
+        <FriendRequest />
 
         <Card title="Friends" divider>
           <div className="space-y-3">

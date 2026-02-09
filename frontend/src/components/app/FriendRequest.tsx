@@ -10,16 +10,16 @@ import SmallButton from '../shared/SmallButton'
 import moment from 'moment'
 import { toast } from 'react-toastify'
 
-const FriendSuggestion = () => {
+const FriendRequest = () => {
     const [loading, setLoading] = useState({state: false, index: 0})
-    const {data, error, isLoading} = useSWR("/friend/suggestion", Fetcher)
-
-    const sendFriendRequest = async (id: string, index: number)=>{
+    const {data, error, isLoading} = useSWR("/friend/request", Fetcher)
+    
+    const acceptFriendRequest = async (id: string, index: number)=>{
         try {
             setLoading({state: true, index})
-            await HttpInterceptor.post("/friend", {friend: id})
-            toast.success("Friend request sent !", {position: "top-center"})
-            mutate("/friend/suggestion")
+            await HttpInterceptor.put(`/friend/${id}`, {status: "accepted"})
+            toast.success("Friend request accepeted !", {position: "top-center"})
+            mutate("/friend/request")
             mutate("/friend")
         }
         catch(err)
@@ -33,7 +33,7 @@ const FriendSuggestion = () => {
 
     return (
         <div className="h-62.5 overflow-auto">
-            <Card title="Suggested" divider>
+            <Card title="Friend`s request" divider>
                 { isLoading && <Skeleton active /> }
 
                 { error && <Error message={error.message} /> }
@@ -46,26 +46,32 @@ const FriendSuggestion = () => {
                                 <div key={index} className='space-y-4'>
                                     <div className="flex gap-4 items-center">
                                         <img 
-                                            src= {item.image || "/images/myimage.jpeg"}
-                                            alt="jpeg" 
+                                            src= {item.user.image || "/images/myimage.jpeg"}
+                                            alt="avf" 
                                             className="w-12 h-12 rounded object-cover" 
                                         />
                                         <div>
-                                            <h1 className="text-black font-medium capitalize">{item.fullname}</h1>
+                                            <h1 className="text-black font-medium capitalize">{item.user.fullname}</h1>
                                             <small className='text-gray-400'>{moment(item.createdAt).format('DD MMM, YYYY')}</small>
                                         </div>
                                         
                                     </div>
                                     
-                                    <SmallButton loading={loading.state && loading.index === index} onClick={()=>sendFriendRequest(item._id, index)} type="secondary" icon='user-add-line'>Add Friend</SmallButton>
+                                    <SmallButton 
+                                        loading={loading.state && loading.index === index} 
+                                        onClick={()=>acceptFriendRequest(item._id, index)} 
+                                        type="danger" 
+                                        icon='check-double-line'
+                                    >Accept</SmallButton>
                                 </div>
                             ))
                         }
                     </div>
                 }
+
                 {
-                    (data && data.length === 0)
-                        &&
+                    (data && data.length === 0) 
+                    &&
                     <Empty />
                 }
             </Card>
@@ -73,4 +79,4 @@ const FriendSuggestion = () => {
     )
 }
 
-export default FriendSuggestion
+export default FriendRequest
