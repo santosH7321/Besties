@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
+import 'font-awesome/css/font-awesome.min.css'
 import Home from "./components/Home"
 import Login from "./components/Login"
 import Signup from "./components/Signup"

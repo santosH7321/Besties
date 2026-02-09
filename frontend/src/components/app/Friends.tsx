@@ -1,70 +1,55 @@
+import useSWR, { mutate } from "swr"
 import Card from "../shared/Card"
+import Fetcher from "../../lib/Fetcher"
+import Error from "../shared/Error"
+import { Skeleton } from "antd"
+import CatchError from "../../lib/CatchError"
+import HttpInterceptor from "../../lib/HttpInterceptor"
 
 const Friends = () => {
+  const {data, error, isLoading} = useSWR("/friend", Fetcher)
+  console.log(data)
+  if(isLoading)
+    return <Skeleton active />
+
+  if(error)
+    return <Error message={error.message} />
+
+
+  const unfriend = async (id: string)=>{
+    try {
+      await HttpInterceptor.delete(`/friend/${id}`)
+      mutate("/friend")
+    }
+    catch(err)
+    {
+      CatchError(err)
+    }
+  }
+
   return (
-    <div className="
-      grid 
-      sm:grid-cols-1 
-      lg:grid-cols-2 
-      xl:grid-cols-3 
-      gap-5
-    ">
+    <div className="grid grid-cols-3 gap-8">
       {
-        Array(20).fill(0).map((item, index)=>(
+        data.map((item: any, index: number)=>(
           <Card key={index}>
-            <div className="
-              group
-              flex flex-col items-center
-              py-7
-              gap-3
-              rounded-xl
-              border border-transparent
-              transition-all duration-200
-              hover:border-gray-200
-              hover:bg-gray-50/70
-            ">
-
+            <div className="flex flex-col items-center gap-3">
               <img 
-                src="/images/myimage.jpeg"
-                className="
-                  w-20 h-20 
-                  rounded-full 
-                  object-cover
-                  ring-2 ring-gray-100
-                  transition
-                  group-hover:ring-gray-200
-                "
+                src={item.friend.image || "/images/avt.avif"} 
+                className="w-16 h-16 rounded-full object-cover" 
               />
-
-              <h1 className="
-                text-gray-800 
-                font-semibold 
-                text-base
-              ">
-                Santosh Kumar
-              </h1>
-
-              <div className="flex items-center gap-1 text-xs font-medium text-green-500">
-                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                Online
-              </div>
-
-              <button className="
-                mt-2
-                px-4 py-1.5
-                text-sm
-                font-semibold
-                rounded-lg
-                bg-gray-100
-                text-gray-700
-                hover:bg-rose-500
-                hover:text-white
-                transition
-              ">
-                <i className="ri-user-minus-line mr-1"></i>
-                Unfriend
-              </button>
-
+              <h1 className="text-base font-medium text-black capitalize">{item.friend.fullname}</h1>
+              {
+                item.status === "accepted" ?
+                <button onClick={()=>unfriend(item._id)} className="bg-rose-400 text-white rounded px-2 py-1 text-xs hover:bg-rose-500 mt-1 font-medium">
+                    <i className="ri-user-minus-line mr-1"></i>
+                    Unfriend
+                </button>
+                :
+                <button className="bg-green-400 text-white rounded px-2 py-1 text-xs hover:bg-gray-400 mt-1 font-medium">
+                    <i className="ri-check-double-line mr-1"></i>
+                    Request sent
+                </button>
+              }
             </div>
           </Card>
         ))
