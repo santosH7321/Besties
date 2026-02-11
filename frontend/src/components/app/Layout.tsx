@@ -9,6 +9,7 @@ import useSWR, { mutate } from "swr"
 import Fetcher from "../../lib/Fetcher"
 import CatchError from "../../lib/CatchError"
 import Dashboard from "./Dashboard"
+import FriendRequest from "./friend/FriendRequest"
 import FriendSuggestion from "./friend/FriendSuggestion"
 
 
@@ -22,13 +23,20 @@ const Layout = () => {
   const {pathname} = useLocation()
   const navigate = useNavigate();
 
+  const friendsUiBlacklist = [
+            "/app/friends",
+            "/app/chat",
+            "/app/audio-chat",
+            "/app/video-chat"
+    ]
+
+  const isBlacklisted = friendsUiBlacklist.some((path)=>pathname === path)
+
   const {error} = useSWR("/auth/refresh-token", Fetcher, {
     refreshInterval: EightMinInMs,
     shouldRetryOnError: false
   })
   const {session, setSession} = useContext(Context)
-
-
 
   useEffect(() => {
     if(error){
@@ -190,7 +198,10 @@ const Layout = () => {
           transition: '0.2s'
         }}
       >
-        <FriendSuggestion />
+        {
+            !isBlacklisted &&
+            <FriendRequest />
+        }
         <Card 
           title={
               <div className="flex items-center gap-4">
@@ -209,6 +220,10 @@ const Layout = () => {
                   <Outlet />
             }
         </Card>
+        {
+          !isBlacklisted &&
+          <FriendSuggestion />
+        }
       </section>
 
       <aside 

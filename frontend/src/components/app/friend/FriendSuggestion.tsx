@@ -4,7 +4,7 @@ import 'swiper/css';
 import Card from '../../shared/Card';
 import SmallButton from '../../shared/SmallButton';
 
-const FriedsSuggestion = ()=>{
+const FriendSuggestion = ()=>{
   return (
     <Card title="Suggestions" divider>
       <div>
@@ -41,4 +41,4 @@ const FriedsSuggestion = ()=>{
   );
 }
 
-export default FriedsSuggestion
+export default FriendSuggestion
