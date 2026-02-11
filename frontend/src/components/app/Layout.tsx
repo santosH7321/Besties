@@ -11,15 +11,18 @@ import CatchError from "../../lib/CatchError"
 import Dashboard from "./Dashboard"
 import FriendRequest from "./friend/FriendRequest"
 import FriendSuggestion from "./friend/FriendSuggestion"
+import FriendList from "./friend/FriendList"
+import { useMediaQuery } from "react-responsive"
 
 
 const EightMinInMs = 8*60*1000;
 
 
 const Layout = () => {
+  const isMobile = useMediaQuery({ query: '(max-width: 1224px)' })
   const [leftAsideSize, setLeftAsideSize] = useState(350)
   const rightAsideSize = 450
-  const collapseSize = 140
+  const [collapseSize, setCollapseSize] = useState(140)
   const {pathname} = useLocation()
   const navigate = useNavigate();
 
@@ -43,6 +46,11 @@ const Layout = () => {
       logout();
     }
   }, [error])
+
+  useEffect(()=>{
+        setLeftAsideSize(isMobile ? 0 : 350)
+        setCollapseSize(isMobile ? 0 : 140)
+    }, [isMobile])
 
   const menus = [
         {
@@ -117,7 +125,7 @@ const Layout = () => {
   return (
     <div className="min-h-screen">
       <aside
-          className="fixed top-0 left-0 h-full p-8 overflow-auto"
+          className="fixed top-0 left-0 h-full p-8 overflow-auto z-50"
           style={{ width: leftAsideSize }}>
           <div className="h-full rounded-2xl bg-linear-to-br from-[#0F172A] via-[#1E1B4B] to-[#020617] p-6 shadow-2xl flex flex-col">
             <div className="mb-8 flex justify-center">
@@ -141,7 +149,7 @@ const Layout = () => {
               }
             </div>
             <div className="my-2 h-px bg-white/10" />
-            <nav className="flex-1 space-y-1">
+            <nav className="flex-1 space-y-1 ">
               {menus.map((item) => (
                 <Link
                   key={item.href}
@@ -193,8 +201,8 @@ const Layout = () => {
       <section
         className="py-8 px-1 space-y-8"
         style={{
-          width: `calc(100% - ${leftAsideSize+rightAsideSize}px)`,
-          marginLeft: leftAsideSize,
+          width: isMobile ? "100%" : `calc(100% - ${leftAsideSize+rightAsideSize}px)`,
+          marginLeft: isMobile ? 0 : leftAsideSize,
           transition: '0.2s'
         }}
       >
@@ -205,7 +213,7 @@ const Layout = () => {
         <Card 
           title={
               <div className="flex items-center gap-4">
-                <button className="bg-gray-100 w-10 h-10 rounded-full hover:bg-salte-200" onClick={()=>setLeftAsideSize(leftAsideSize === 350 ? collapseSize : 350)}>
+                <button className="lg:block hidden bg-gray-100 w-10 h-10 rounded-full hover:bg-salte-200" onClick={()=>setLeftAsideSize(leftAsideSize === 350 ? collapseSize : 350)}>
                   <i className="ri-arrow-left-line"></i>
                 </button>
                 <h1>{pathname.split("/").pop()}</h1>
@@ -227,99 +235,20 @@ const Layout = () => {
       </section>
 
       <aside 
-        className="
-          bg-white fixed top-0 right-0 h-full
-          p-6 space-y-6
-          overflow-y-auto
-          border-l border-gray-200
-          shadow-sm
-        " 
+        className="lg:block hidden bg-white fixed top-0 right-0 h-full p-8 overflow-auto space-y-8" 
         style={{
-          width: rightAsideSize,
-          transition: '0.2s'
-        }}
-      >
+        width: rightAsideSize,
+        transition: '0.2s'
+        }}>
+          {
+            !isBlacklisted &&
+              <Card title="Friends" divider>
+                <FriendList gap={6} columns={2} />
+              </Card>
+          }
+              <Card title="Recent posts" divider>
 
-        <Card title="Friends" divider>
-          <div className="space-y-3">
-            {
-              Array(20).fill(0).map((item, index)=>(
-                <div 
-                  key={index} 
-                  className="
-                    flex items-center justify-between
-                    p-2 rounded-xl
-                    hover:bg-gray-50
-                    transition
-                  "
-                >
-                  <Avatar 
-                    size="md"
-                    image="/images/myimage.jpeg"
-                    title="Santosh kumar"
-                    subtitle={
-                      <small className={`${index % 2 === 0 ? 'text-zinc-400' : 'text-green-500'} font-medium`}>
-                        {index % 2 === 0 ? "Offline" : "Online"}
-                      </small>
-                    }
-                  />
-                  <div className="flex gap-2">
-
-                    <Link to="/app/chat">
-                      <button 
-                        title="Chat"
-                        className="
-                          w-9 h-9
-                          flex items-center justify-center
-                          rounded-lg
-                          hover:bg-blue-50
-                          text-blue-500
-                          transition
-                        "
-                      >
-                        <i className="ri-chat-ai-line"></i>
-                      </button>
-                    </Link>
-                                      
-                    <Link to="/app/audio-chat">
-                      <button 
-                        title="Call"
-                        className="
-                          w-9 h-9
-                          flex items-center justify-center
-                          rounded-lg
-                          hover:bg-green-50
-                          text-green-500
-                          transition
-                        "
-                      >
-                        <i className="ri-phone-line"></i>
-                      </button>
-                    </Link>
-
-                    <Link to="/app/video-chat">
-                      <button 
-                        title="Video call"
-                        className="
-                          w-9 h-9
-                          flex items-center justify-center
-                          rounded-lg
-                          hover:bg-amber-50
-                          text-amber-500
-                          transition
-                        "
-                      >
-                        <i className="ri-video-on-ai-line"></i>
-                      </button>
-                    </Link>
-
-                  </div>
-                </div>
-              ))
-            }
-          </div>
-        </Card>
-
+              </Card>
       </aside>
     </div>
   )
