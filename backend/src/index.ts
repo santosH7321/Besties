@@ -5,9 +5,10 @@ import mongoose from "mongoose";
 mongoose.connect(process.env.DB!)
 
 import express from "express";
+import {createServer} from "http";
+import { Server } from "socket.io";
 import cors from "cors";
 import AuthRouter from "./router/auth.router";
-const app = express();
 import cookieParser from "cookie-parser";
 import StorageRouter from "./router/storage.router";
 import AuthMiddleware from "./middleware/auth.middleware";
@@ -15,11 +16,29 @@ import FriendRouter from "./router/friend.router";
 import SwaggerConfig from "./utils/swagger";
 import { serve, setup } from "swagger-ui-express";
 
+
+const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: process.env.CLIENT,
+        credentials: true
+    }
+})
+
+
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 })
 
+io.on("connection", (socket) => {
+    console.log("A user connected: " + socket.id);
+
+    socket.on("disconnect", () => {
+        console.log("A user disconnected: " + socket.id);
+    });
+})
 
 app.use(cors({
     origin: process.env.CLIENT,
