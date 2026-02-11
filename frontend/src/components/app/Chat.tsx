@@ -1,8 +1,25 @@
 import Avatar from '../shared/Avatar'
 import Input from '../shared/Input'
 import Button from '../shared/Button'
+import socket from '../../lib/Socket'
+import { useEffect } from 'react'
 
 const Chat = () => {
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected to socket server");
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Disconnected from socket server");
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+    };
+  }, []);
+
   return (
     <div className="flex flex-col h-full">
       <div className="
