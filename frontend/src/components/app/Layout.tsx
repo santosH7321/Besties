@@ -13,6 +13,8 @@ import FriendRequest from "./friend/FriendRequest"
 import FriendSuggestion from "./friend/FriendSuggestion"
 import FriendList from "./friend/FriendList"
 import { useMediaQuery } from "react-responsive"
+import Logo from "../shared/Logo"
+import IconButton from "../shared/IconButton"
 
 
 const EightMinInMs = 8*60*1000;
@@ -124,10 +126,20 @@ const Layout = () => {
 
   return (
     <div className="min-h-screen">
+      <nav className="lg:hidden flex justify-between items-center bg-linear-to-br from-[#0F172A] via-[#1E1B4B] to-[#020617] sticky top-0 left-0 z-50 w-full py-4 px-6">
+        <Logo />
+        <div className="flex gap-4">
+            <IconButton onClick={logout} icon="logout-circle-line" type="success" />
+            <Link to="/app/friends">
+                <IconButton icon="chat-ai-line" type="danger" />
+            </Link>
+            <IconButton  onClick={()=>setLeftAsideSize(leftAsideSize === 250 ? collapseSize : 250)} icon="menu-3-line" type="warning" />
+        </div>
+    </nav>
       <aside
-          className="fixed top-0 left-0 h-full p-8 overflow-auto z-50"
+          className="fixed lg:top-0 lg:left-0 h-full lg:p-8 overflow-auto z-50"
           style={{ width: leftAsideSize }}>
-          <div className="h-full rounded-2xl bg-linear-to-br from-[#0F172A] via-[#1E1B4B] to-[#020617] p-6 shadow-2xl flex flex-col">
+          <div className="h-full lg:rounded-2xl bg-linear-to-br from-[#0F172A] via-[#1E1B4B] to-[#020617] p-6 shadow-2xl flex flex-col">
             <div className="mb-8 flex justify-center">
               {
                 leftAsideSize === collapseSize ?
@@ -199,7 +211,7 @@ const Layout = () => {
       </aside>
 
       <section
-        className="py-8 px-1 space-y-8"
+        className="lg:py-8 lg:px-1 p-2 space-y-8"
         style={{
           width: isMobile ? "100%" : `calc(100% - ${leftAsideSize+rightAsideSize}px)`,
           marginLeft: isMobile ? 0 : leftAsideSize,
