@@ -5,7 +5,6 @@ import Login from "./components/Login"
 import Signup from "./components/Signup"
 import 'remixicon/fonts/remixicon.css'
 import Layout from "./components/app/Layout"
-import Friends from "./components/app/Friends"
 import Post from "./components/app/Post"
 import Dashboard from "./components/app/Dashboard"
 import Video from "./components/app/Video"
@@ -17,6 +16,7 @@ import { useState } from "react"
 import { ToastContainer } from "react-toastify"
 import AuthGuard from "./guards/AuthGuard"
 import RedirectGuard from "./guards/RedirectGuard"
+import FriendList from "./components/app/friend/FriendList"
 
 
 const App = () => {
@@ -34,7 +34,7 @@ const App = () => {
             <Route path="/app" element={<Layout />}>
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="posts" element={<Post />} />
-              <Route path="friends" element={<Friends />} />
+              <Route path="friends" element={<FriendList />} />
               <Route path="video-chat" element={<Video />} />
               <Route path="audio-chat" element={<Audio />} />
               <Route path="chat" element={<Chat />} />

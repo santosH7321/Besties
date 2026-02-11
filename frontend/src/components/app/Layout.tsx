@@ -9,8 +9,7 @@ import useSWR, { mutate } from "swr"
 import Fetcher from "../../lib/Fetcher"
 import CatchError from "../../lib/CatchError"
 import Dashboard from "./Dashboard"
-import FriendSuggestion from "./FriendSuggestion"
-import FriendRequest from "./FriendRequest"
+import FriendSuggestion from "./friend/FriendSuggestion"
 
 
 const EightMinInMs = 8*60*1000;
@@ -67,38 +66,46 @@ const Layout = () => {
 
 
   const uploadImage = () => {
-    const input = document.createElement("input")
-    input.type = "file"
-    input.accept = "image/*"
-    input.click()
-    input.onchange = async () => {
-      if(!input.files) 
-        return
+  const input = document.createElement("input")
+  input.type = "file"
+  input.accept = "image/*"
+  input.click()
 
-      const file = input.files[0]
-      const path = `profile-pictures/${uuid()}.png`
-      const payload = {
-        path,
-        type: file.type,
-        status: "public-read"
-      }
-      try {
-        const options = {
-          headers: {
-            "Contect-Type": file.type
-          }
+  input.onchange = async () => {
+    if (!input.files) return
+
+    const file = input.files[0]
+    const extension = file.type.split("/")[1]
+    const path = `profile-pictures/${uuid()}.${extension}`
+
+    const payload = {
+      path,
+      type: file.type,
+      status: "public-read"
+    }
+
+    try {
+      const { data } = await HttpInterceptor.post("/storage/upload", payload)
+
+      await HttpInterceptor.put(data.url, file, {
+        headers: {
+          "Content-Type": file.type  
         }
-        const {data} = await HttpInterceptor.post("/storage/upload", payload)
-        await HttpInterceptor.put(data.url, file, options)
-        const {data: user} = await HttpInterceptor.put("/auth/profile-picture", {path})
-        setSession({...session, image: user.image})
-        mutate("/auth/refresh-token")
-      }
-      catch(err) {  
-        console.log(err)  
-      }
+      })
+
+      const { data: user } = await HttpInterceptor.put(
+        "/auth/profile-picture",
+        { path }
+      )
+
+      setSession({ ...session, image: user.image })
+      mutate("/auth/refresh-token")
+    } catch (err) {
+      console.log(err)
     }
   }
+}
+
   return (
     <div className="min-h-screen">
       <aside
@@ -176,13 +183,14 @@ const Layout = () => {
       </aside>
 
       <section
-        className="min-h-screen p-8"
+        className="py-8 px-1 space-y-8"
         style={{
           width: `calc(100% - ${leftAsideSize+rightAsideSize}px)`,
           marginLeft: leftAsideSize,
           transition: '0.2s'
         }}
       >
+        <FriendSuggestion />
         <Card 
           title={
               <div className="flex items-center gap-4">
@@ -216,9 +224,6 @@ const Layout = () => {
           transition: '0.2s'
         }}
       >
-
-        <FriendSuggestion />
-        <FriendRequest />
 
         <Card title="Friends" divider>
           <div className="space-y-3">
