@@ -15,6 +15,7 @@ import FriendList from "./friend/FriendList"
 import { useMediaQuery } from "react-responsive"
 import Logo from "../shared/Logo"
 import IconButton from "../shared/IconButton"
+import FriendsOnline from "./friend/FriendsOnline"
 
 
 const EightMinInMs = 8*60*1000;
@@ -252,15 +253,7 @@ const Layout = () => {
         width: rightAsideSize,
         transition: '0.2s'
         }}>
-          {
-            !isBlacklisted &&
-              <Card title="Friends" divider>
-                <FriendList gap={6} columns={2} />
-              </Card>
-          }
-              <Card title="Recent posts" divider>
-
-              </Card>
+          <FriendsOnline />
       </aside>
     </div>
   )
