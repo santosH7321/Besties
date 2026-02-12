@@ -15,16 +15,12 @@ import AuthMiddleware from "./middleware/auth.middleware";
 import FriendRouter from "./router/friend.router";
 import SwaggerConfig from "./utils/swagger";
 import { serve, setup } from "swagger-ui-express";
+import StatusSocket from "./socket/status.socket";
+import corsConfig from "./utils/cors";
 
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: process.env.CLIENT,
-        credentials: true
-    }
-})
 
 
 const PORT = process.env.PORT || 8080;
@@ -32,18 +28,11 @@ server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 })
 
-io.on("connection", (socket) => {
-    console.log("A user connected: " + socket.id);
+const io = new Server(server, {cors: corsConfig});
+StatusSocket(io)
 
-    socket.on("disconnect", () => {
-        console.log("A user disconnected: " + socket.id);
-    });
-})
 
-app.use(cors({
-    origin: process.env.CLIENT,
-    credentials: true
-}));
+app.use(cors(corsConfig));
 app.use(cookieParser())
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
