@@ -2,9 +2,42 @@ import Avatar from '../shared/Avatar'
 import Input from '../shared/Input'
 import Button from '../shared/Button'
 import socket from '../../lib/Socket'
-import { useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
+import Form from '../shared/Form'
+import Context from '../../Contex'
+import { useParams } from 'react-router-dom'
+
+interface MessageRecievedInterface {
+  from: string;
+  message: string;
+}
 
 const Chat = () => {
+  const [chats, setChats] = useState<any>([]);
+  const {session} = useContext(Context);
+  const {id} = useParams();
+
+  const messageHandler = (messageRecieved: MessageRecievedInterface) => {
+    setChats((prevChats: any) => [...prevChats, messageRecieved]);
+  }
+
+  useEffect(() => {
+      socket.on("message", messageHandler);
+      return () => {
+        socket.off("message", messageHandler);
+      }
+  }, []);
+
+  const sendMessage = (values: any) => {
+    const payload = {
+      from: session,
+      to: id,
+      message: values.message
+    }
+    setChats((prevChats: any) => [...prevChats, payload]);
+    socket.emit("message", payload)
+  }
+
   useEffect(() => {
     socket.on("connect", () => {
       console.log("Connected to socket server");
@@ -29,10 +62,14 @@ const Chat = () => {
         pb-6
       ">
 
-        {Array(20).fill(0).map((_, index) => (
+        {chats.map((item: any, index: number) => (
           <div key={index} className="space-y-6">
-            <div className="flex gap-3 items-end">
-              <Avatar image='/images/myimage.jpeg' size='md' />
+            {
+              item.from.id === session.id ? 
+              <div className="flex gap-3 items-end">
+              <Avatar 
+                image={session.image || '/images/myimage.jpeg'}
+                size='md' />
 
               <div className="
                 relative
@@ -43,17 +80,19 @@ const Chat = () => {
                 text-gray-700
                 shadow-sm
               ">
-                <h1 className="text-sm font-semibold text-gray-900 mb-1">
-                  Santosh Kumar
+                <h1 className="text-sm font-semibold text-gray-900 mb-1 capitalize">
+                  You
                 </h1>
 
                 <p className="text-sm leading-relaxed">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                  {item.message}
                 </p>
               </div>
-            </div>
+              </div>
 
-            <div className="flex gap-3 items-end justify-end">
+              :
+
+              <div className="flex gap-3 items-end justify-end">
 
               <div className="
                 relative
@@ -64,18 +103,25 @@ const Chat = () => {
                 text-white
                 shadow-md
               ">
-                <h1 className="text-sm font-semibold mb-1">
-                  You
+                <h1 className="text-sm font-semibold mb-1 capitalize">
+                  {item.from.fullname}
                 </h1>
 
                 <p className="text-sm leading-relaxed opacity-90">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                  {item.message}
                 </p>
               </div>
 
-              <Avatar image='/images/myimage.jpeg' size='md' />
+              <Avatar
+                image={item.from.image || '/images/myimage.jpeg'}
+                size='md'
+               />
 
-            </div>
+              </div>
+            }
+            
+
+        
 
           </div>
         ))}
@@ -96,7 +142,7 @@ const Chat = () => {
           shadow-sm
         ">
 
-          <form className="flex gap-3 flex-1">
+          <Form className="flex gap-3 flex-1" onValue={sendMessage}>
             <Input
               name="message"
               placeholder='Type a message...'
@@ -108,7 +154,7 @@ const Chat = () => {
             >
               Send
             </Button>
-          </form>
+          </Form>
 
           <button className="
             w-11 h-11
