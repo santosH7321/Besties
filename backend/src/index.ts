@@ -17,6 +17,7 @@ import SwaggerConfig from "./utils/swagger";
 import { serve, setup } from "swagger-ui-express";
 import StatusSocket from "./socket/status.socket";
 import corsConfig from "./utils/cors";
+import ChatSocket from "./socket/chat.socket";
 
 
 const app = express();
@@ -30,6 +31,7 @@ server.listen(PORT, () => {
 
 const io = new Server(server, {cors: corsConfig});
 StatusSocket(io)
+ChatSocket(io)
 
 
 app.use(cors(corsConfig));
