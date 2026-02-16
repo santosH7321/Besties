@@ -2,10 +2,13 @@ import Avatar from '../shared/Avatar'
 import Input from '../shared/Input'
 import Button from '../shared/Button'
 import socket from '../../lib/Socket'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import Form from '../shared/Form'
 import Context from '../../Contex'
 import { useParams } from 'react-router-dom'
+import useSWR from 'swr'
+import Fetcher from '../../lib/Fetcher'
+
 
 interface MessageRecievedInterface {
   from: string;
@@ -13,20 +16,39 @@ interface MessageRecievedInterface {
 }
 
 const Chat = () => {
+  const chatContainer = useRef<HTMLDivElement | null>(null);
   const [chats, setChats] = useState<any>([]);
   const {session} = useContext(Context);
   const {id} = useParams();
+  const {data} = useSWR(id ? `/chat/${id}` : null, id ? Fetcher : null);
+  
 
   const messageHandler = (messageRecieved: MessageRecievedInterface) => {
     setChats((prevChats: any) => [...prevChats, messageRecieved]);
   }
 
+  // Listening received messages
   useEffect(() => {
       socket.on("message", messageHandler);
       return () => {
         socket.off("message", messageHandler);
       }
   }, []);
+
+  // Fetch old chats
+  useEffect(() => {
+    if(data) {
+      setChats(data)
+    }
+  }, [data])
+
+  // Scroll to bottom when new message arrives
+  useEffect(() => {
+    const chatDiv = chatContainer.current;
+    if(chatDiv) {
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+  }, [chats])
 
   const sendMessage = (values: any) => {
     const payload = {
@@ -60,12 +82,14 @@ const Chat = () => {
         space-y-6
         pr-4
         pb-6
-      ">
+      "
+      ref={chatContainer} 
+      >
 
         {chats.map((item: any, index: number) => (
           <div key={index} className="space-y-6">
             {
-              item.from.id === session.id ? 
+              (item.from.id === session.id || item.from._id === session.id) ? 
               <div className="flex gap-3 items-end">
               <Avatar 
                 image={session.image || '/images/myimage.jpeg'}
@@ -142,7 +166,7 @@ const Chat = () => {
           shadow-sm
         ">
 
-          <Form className="flex gap-3 flex-1" onValue={sendMessage}>
+          <Form className="flex gap-3 flex-1" onValue={sendMessage} reset={true}>
             <Input
               name="message"
               placeholder='Type a message...'

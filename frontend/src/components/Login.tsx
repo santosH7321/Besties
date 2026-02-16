@@ -48,7 +48,7 @@ const Login = () => {
                 <Link to="/signup" className="text-green-400 font-medium hover:underline">Sign up</Link>
               </div>
             </div>
-            <div className="overflow-hidden h-125 bg-linear-to-t from-sky-500 to-indigo-500 flex items-center justify-center rounded-r-xl">
+            <div className="overflow-hidden h-125 bg-linear-to-t from-sky-500 to-indigo-500 flex items-center justify-center rounded-r-xl ">
                 <img src="/images/login.svg" alt="auth" className="w-[70%] animate__animated animate__slideInUp animate__faster" />
             </div>
           </div>
