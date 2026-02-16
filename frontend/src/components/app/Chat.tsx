@@ -2,12 +2,15 @@ import Avatar from '../shared/Avatar'
 import Input from '../shared/Input'
 import Button from '../shared/Button'
 import socket from '../../lib/Socket'
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState, type ChangeEvent } from 'react'
 import Form from '../shared/Form'
 import Context from '../../Contex'
 import { useParams } from 'react-router-dom'
 import useSWR from 'swr'
 import Fetcher from '../../lib/Fetcher'
+import CatchError from '../../lib/CatchError'
+import HttpInterceptor from '../../lib/HttpInterceptor'
+import { v4 as uuid } from 'uuid'
 
 
 interface MessageRecievedInterface {
@@ -74,6 +77,47 @@ const Chat = () => {
       socket.off("disconnect");
     };
   }, []);
+
+  const fileSharing = async (e: ChangeEvent<HTMLInputElement>) => {
+    try {
+      const input = e.target
+    
+      if(!input.files)
+        return 
+      const file = input.files[0]
+      const ext = file.name.split(".").pop()  
+      const filename = `${uuid()}.${ext}`
+      const path = `chats/${filename}`
+
+      const payload = {
+        path: path,
+        type: file.type,
+        status: "private"
+      }
+
+      const options = {
+        headers: {
+          "Content-Type": file.type
+        }
+      }
+
+      const {data} = await HttpInterceptor.post("/storage/upload", payload)
+      await HttpInterceptor.put(data.url, file, options)
+      
+      socket.emit("attachment", {
+        from: session,
+        to: id,
+        message: filename,
+        file: {
+          path,
+          type: file.type
+        }
+      })
+    } 
+    catch(err) {
+        CatchError(err)
+    }
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -189,8 +233,10 @@ const Chat = () => {
             hover:bg-rose-500
             hover:text-white
             transition
+            relative
           ">
             <i className="ri-attachment-2 text-lg"></i>
+            <input onChange={fileSharing} type="file" className="bg-rose-500 w-full h-full absolute top-0 left-0 opacity-0" />
           </button>
 
         </div>
