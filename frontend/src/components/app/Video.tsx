@@ -104,7 +104,22 @@ const Video = () => {
     }
 
     const toggleMic = ()=>{
-        alert("wait")
+        try {
+            const localStream = localStreamRef.current
+            if(!localStream)
+                return
+
+            const audioTrack = localStream.getTracks().find((tracks)=>tracks.kind === "audio")
+            if(audioTrack)
+            {
+                audioTrack.enabled = !audioTrack.enabled
+                setIsMic(audioTrack.enabled)
+            }
+        }
+        catch(err)
+        {
+            CatchError(err)
+        }
     }
 
     const toggleFullScreen = (type: 'local' | 'remote')=>{
