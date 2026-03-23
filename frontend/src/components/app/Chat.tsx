@@ -85,6 +85,7 @@ const Chat = () => {
       if(!input.files)
         return 
       const file = input.files[0]
+      const url = URL.createObjectURL(file)
       const ext = file.name.split(".").pop()  
       const filename = `${uuid()}.${ext}`
       const path = `chats/${filename}`
@@ -104,21 +105,36 @@ const Chat = () => {
       const {data} = await HttpInterceptor.post("/storage/upload", payload)
       await HttpInterceptor.put(data.url, file, options)
       
-      socket.emit("attachment", {
+      const remoteMetaData = {
+        file: {
+            path: path,
+            type: file.type
+        }
+      }
+
+      const localMetaData = {
+        file: {
+            path: url,
+            type: file.type
+        }
+      }
+
+      const attachmentPayload = {
         from: session,
         to: id,
         message: filename,
-        file: {
-          path,
-          type: file.type
-        }
-      })
+      }
+
+      setChats((prev: any) => [...prev, {...attachmentPayload, ...localMetaData}])
+
+      socket.emit("attachment", {...attachmentPayload, ...remoteMetaData})
     } 
     catch(err) {
         CatchError(err)
     }
   }
 
+  
   return (
     <div className="flex flex-col h-full">
       <div className="
@@ -187,10 +203,7 @@ const Chat = () => {
 
               </div>
             }
-            
-
         
-
           </div>
         ))}
 
