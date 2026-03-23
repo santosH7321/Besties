@@ -188,7 +188,7 @@ const Chat = () => {
                                 (item.from.id === session.id || item.from._id === session.id) ?
                                 <div className='flex gap-4 items-start'>
                                     <Avatar 
-                                        image={session.image || '/images/avt.avif' }
+                                        image={session.image || '/images/myimage.jpeg' }
                                         size='md' 
                                     />
                                     <div className='gap-3 flex flex-col relative bg-rose-50 px-4 py-2 rounded-lg flex-1 text-pink-500 border border-rose-100'>
