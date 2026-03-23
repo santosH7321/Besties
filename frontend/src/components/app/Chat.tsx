@@ -2,7 +2,7 @@ import Avatar from '../shared/Avatar'
 import Input from '../shared/Input'
 import Button from '../shared/Button'
 import socket from '../../lib/Socket'
-import { useContext, useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { useContext, useEffect, useRef, useState, type ChangeEvent, type FC } from 'react'
 import Form from '../shared/Form'
 import Context from '../../Contex'
 import { useParams } from 'react-router-dom'
@@ -11,11 +11,39 @@ import Fetcher from '../../lib/Fetcher'
 import CatchError from '../../lib/CatchError'
 import HttpInterceptor from '../../lib/HttpInterceptor'
 import { v4 as uuid } from 'uuid'
+import Card from '../shared/Card'
+import SmallButton from '../shared/SmallButton'
+import moment from 'moment'
 
 
 interface MessageRecievedInterface {
   from: string;
   message: string;
+}
+
+interface AttachmentUiInterface {
+    file: {
+        path: string
+        type: string
+    }
+}
+
+const AttachmentUi: FC<AttachmentUiInterface> = ({file})=>{
+    if(file.type.startsWith("video/"))
+        return (
+            <video className='w-full' controls src={file.path}></video>
+        )
+
+    if(file.type.startsWith("image/"))
+        return (
+            <img className='w-full' src={file.path} />
+        )
+    
+    return (
+        <Card>
+            <i className="ri-file-line text-5xl"></i>
+        </Card>
+    )
 }
 
 const Chat = () => {
@@ -134,80 +162,80 @@ const Chat = () => {
     }
   }
 
-  
+  const download = async (path: string)=>{
+        try {
+            const filename: any = path.split("/").pop()
+            const {data} = await HttpInterceptor.post("/storage/download", {path})
+            const a = document.createElement("a")
+            a.href = data.url
+            a.download = filename
+            a.click()
+            a.remove()
+        }
+        catch(err)
+        {
+            CatchError(err)
+        }
+    }
+
   return (
     <div className="flex flex-col h-full">
-      <div className="
-        flex-1 overflow-y-auto
-        space-y-6
-        pr-4
-        pb-6
-      "
-      ref={chatContainer} 
-      >
+      <div className='h-112.5 overflow-auto space-y-12 pr-6 relative' ref={chatContainer}>
+                {
+                    chats.map((item: any, index: number)=>(
+                        <div className='space-y-12' key={index}>
+                            {
+                                (item.from.id === session.id || item.from._id === session.id) ?
+                                <div className='flex gap-4 items-start'>
+                                    <Avatar 
+                                        image={session.image || '/images/avt.avif' }
+                                        size='md' 
+                                    />
+                                    <div className='gap-3 flex flex-col relative bg-rose-50 px-4 py-2 rounded-lg flex-1 text-pink-500 border border-rose-100'>
+                                        <h1 className='font-medium text-black capitalize'>You</h1>
+                                        { item.file && <AttachmentUi file={item.file} /> }
+                                        <label>{item.message}</label>
+                                        { 
+                                            item.file && 
+                                            <div>
+                                                <SmallButton onClick={()=>download(item.file.path)} type='success' icon='download-line'>Download</SmallButton>
+                                            </div>
+                                        }
+                                        <div className='text-gray-500 text-right text-xs'>
+                                            {moment().format('MMM DD, YYYY hh:mm:ss A')}
+                                        </div>
+                                        <i className="ri-arrow-left-s-fill absolute top-0 -left-5 text-4xl text-rose-50"></i>
+                                    </div>
+                                </div>
+                                :
+                                <div className='flex gap-4 items-start'>
+                                    <div className='relative bg-violet-50 px-4 py-2 rounded-lg flex-1 text-blue-500 border border-violet-100'>
+                                        <h1 className='font-medium text-black capitalize'>{item.from.fullname}</h1>
+                                        { item.file && <AttachmentUi file={item.file} /> }
+                                        <label>{item.message}</label>
+                                        <i className="ri-arrow-right-s-fill absolute top-0 -right-5 text-4xl text-violet-50"></i>
+                                        <label>{item.message}</label>
+                                        { 
+                                            item.file && 
+                                            <div>
+                                                <SmallButton onClick={()=>download(item.file.path)} type='danger' icon='download-line'>Download</SmallButton>
+                                            </div>
+                                        }
+                                        <div className='text-gray-500 text-right text-xs'>
+                                            {moment().format('MMM DD, YYYY hh:mm:ss A')}
+                                        </div>
+                                    </div>
+                                    <Avatar 
+                                        image={item.from.image || '/images/myimage.jpeg'} 
+                                        size='md' 
+                                    />
+                                </div>
+                            }
 
-        {chats.map((item: any, index: number) => (
-          <div key={index} className="space-y-6">
-            {
-              (item.from.id === session.id || item.from._id === session.id) ? 
-              <div className="flex gap-3 items-end">
-              <Avatar 
-                image={session.image || '/images/myimage.jpeg'}
-                size='md' />
-
-              <div className="
-                relative
-                max-w-[70%]
-                bg-gray-100
-                px-4 py-3
-                rounded-2xl rounded-bl-sm
-                text-gray-700
-                shadow-sm
-              ">
-                <h1 className="text-sm font-semibold text-gray-900 mb-1 capitalize">
-                  You
-                </h1>
-
-                <p className="text-sm leading-relaxed">
-                  {item.message}
-                </p>
-              </div>
-              </div>
-
-              :
-
-              <div className="flex gap-3 items-end justify-end">
-
-              <div className="
-                relative
-                max-w-[70%]
-                bg-indigo-600
-                px-4 py-3
-                rounded-2xl rounded-br-sm
-                text-white
-                shadow-md
-              ">
-                <h1 className="text-sm font-semibold mb-1 capitalize">
-                  {item.from.fullname}
-                </h1>
-
-                <p className="text-sm leading-relaxed opacity-90">
-                  {item.message}
-                </p>
-              </div>
-
-              <Avatar
-                image={item.from.image || '/images/myimage.jpeg'}
-                size='md'
-               />
-
-              </div>
-            }
-        
-          </div>
-        ))}
-
-      </div>
+                        </div>
+                    ))
+                }
+            </div>
 
       <div className="
         sticky bottom-0
