@@ -3,6 +3,8 @@ dotenv.config();
 
 import mongoose from "mongoose";
 mongoose.connect(process.env.DB!)
+.then(() => {console.log("DB connected")})
+.catch(() => {console.log("DB not connected")})
 
 import express from "express";
 import {createServer} from "http";
@@ -19,6 +21,7 @@ import StatusSocket from "./socket/status.socket";
 import corsConfig from "./utils/cors";
 import ChatSocket from "./socket/chat.socket";
 import ChatRouter from "./router/chat.router";
+import VideoSocket from "./socket/video.socket";
 
 
 const app = express();
@@ -33,6 +36,7 @@ server.listen(PORT, () => {
 const io = new Server(server, {cors: corsConfig});
 StatusSocket(io)
 ChatSocket(io)
+VideoSocket(io)
 
 // Middlewares
 app.use(cors(corsConfig));
