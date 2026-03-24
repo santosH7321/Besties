@@ -11,7 +11,7 @@ import Video from "./components/app/Video"
 import Audio from "./components/app/Audio"
 import Chat from "./components/app/Chat"
 import NotFound from "./components/NotFound"
-import Context from "./Contex"
+import Context from "./Context"
 import { useState } from "react"
 import { ToastContainer } from "react-toastify"
 import AuthGuard from "./guards/AuthGuard"
@@ -19,10 +19,12 @@ import RedirectGuard from "./guards/RedirectGuard"
 import FriendList from "./components/app/friend/FriendList"
 
 
+
 const App = () => {
   const [session, setSession] = useState(null);
+  const [liveActiveSession, setLiveActiveSession] = useState(null)
   return (
-    <Context.Provider value={{session, setSession}}>
+    <Context.Provider value={{session, setSession, liveActiveSession, setLiveActiveSession}}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />

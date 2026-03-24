@@ -1,51 +1,72 @@
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
+import { Link, Outlet, useLocation, useNavigate, useParams } from "react-router-dom"
 import Avatar from "../shared/Avatar"
 import Card from "../shared/Card"
 import { useContext, useEffect, useState } from "react"
-import Context from "../../Contex"
+import Dashboard from "./Dashboard"
+import Context from "../../Context"
 import HttpInterceptor from "../../lib/HttpInterceptor"
-import {v4 as uuid} from "uuid"
+import {v4 as uuid} from 'uuid'
 import { mutate } from "swr"
 import CatchError from "../../lib/CatchError"
-import Dashboard from "./Dashboard"
-import FriendRequest from "./friend/FriendRequest"
-import FriendSuggestion from "./friend/FriendSuggestion"
-import { useMediaQuery } from "react-responsive"
+import { useMediaQuery } from 'react-responsive'
 import Logo from "../shared/Logo"
 import IconButton from "../shared/IconButton"
 import FriendsOnline from "./friend/FriendsOnline"
-
-
+import socket from "../../lib/Socket"
+import type { OnOfferInterface } from "./Video"
 
 
 const Layout = () => {
-  const isMobile = useMediaQuery({ query: '(max-width: 1224px)' })
-  const [leftAsideSize, setLeftAsideSize] = useState(350)
-  const rightAsideSize = 450
-  const [collapseSize, setCollapseSize] = useState(140)
-  const {pathname} = useLocation()
-  const navigate = useNavigate();
+    const isMobile = useMediaQuery({ query: '(max-width: 1224px)' })
+    const [leftAsideSize, setLeftAsideSize] = useState(0)
+    const [collapseSize, setCollapseSize] = useState(0)
+    const {liveActiveSession, setLiveActiveSession, setSdp} = useContext(Context)
+    const {pathname} = useLocation()
+    const params = useParams()
+    const paramsArray = Object.keys(params)
 
-  const friendsUiBlacklist = [
+    const navigate = useNavigate()
+
+
+    const friendsUiBlacklist = [
             "/app/friends",
             "/app/chat",
             "/app/audio-chat",
             "/app/video-chat"
     ]
 
-  const isBlacklisted = friendsUiBlacklist.some((path)=>pathname === path)
+    const isBlacklisted = friendsUiBlacklist.some((path)=>pathname === path)
 
+    const onOffer = (payload: OnOfferInterface)=>{
+        setSdp(payload)
+        setLiveActiveSession(payload.from)
+        navigate(`/app/video-chat/${payload.from.socketId}`)
+    }
 
-  const {session, setSession} = useContext(Context)
+    // useEffect(()=>{
+    //     if(error)
+    //     {
+    //         logout()
+    //     }
+    // }, [error])
 
-  
+    useEffect(()=>{
+        socket.on("offer", onOffer)
 
-  useEffect(()=>{
+        return ()=>{
+            socket.off("offer", onOffer)
+        }
+    }, [])
+
+    useEffect(()=>{
         setLeftAsideSize(isMobile ? 0 : 350)
         setCollapseSize(isMobile ? 0 : 140)
     }, [isMobile])
 
-  const menus = [
+    const {session, setSession} = useContext(Context)
+
+
+    const menus = [
         {
             icon: "ri-home-9-line",
             href: "/app/dashboard",
@@ -53,7 +74,7 @@ const Layout = () => {
         },
         {
             icon: "ri-chat-smile-3-line",
-            href: "/app/posts",
+            href: "/app/my-posts",
             label: "my posts"
         },
         {
@@ -61,192 +82,184 @@ const Layout = () => {
             href: "/app/friends",
             label: "friends"
         }
-  ]
+    ]
 
-  const logout = async () => {
-    try {
-      await HttpInterceptor.post("/auth/logout");
-      navigate("/login")
-    }
-    catch(err) {
-      CatchError(err)
-    }
-  }
-
-
-  const uploadImage = () => {
-  const input = document.createElement("input")
-  input.type = "file"
-  input.accept = "image/*"
-  input.click()
-
-  input.onchange = async () => {
-    if (!input.files) return
-
-    const file = input.files[0]
-    const extension = file.type.split("/")[1]
-    const path = `profile-pictures/${uuid()}.${extension}`
-
-    const payload = {
-      path,
-      type: file.type,
-      status: "public-read"
-    }
-
-    try {
-      const { data } = await HttpInterceptor.post("/storage/upload", payload)
-
-      await HttpInterceptor.put(data.url, file, {
-        headers: {
-          "Content-Type": file.type  
+    const logout = async ()=>{
+        try {
+            await HttpInterceptor.post("/auth/logout")
+            navigate("/login")
         }
-      })
-
-      const { data: user } = await HttpInterceptor.put(
-        "/auth/profile-picture",
-        { path }
-      )
-
-      setSession({ ...session, image: user.image })
-      mutate("/auth/refresh-token")
-    } catch (err) {
-      console.log(err)
+        catch(err)
+        {
+            CatchError(err)
+        }
     }
-  }
-}
 
-  return (
-    <div className="min-h-screen">
-      <nav className="lg:hidden flex justify-between items-center bg-linear-to-br from-[#0F172A] via-[#1E1B4B] to-[#020617] sticky top-0 left-0 z-50 w-full py-4 px-6">
-        <Logo />
-        <div className="flex gap-4">
-            <IconButton onClick={logout} icon="logout-circle-line" type="success" />
-            <Link to="/app/friends">
-                <IconButton icon="chat-ai-line" type="danger" />
-            </Link>
-            <IconButton  onClick={()=>setLeftAsideSize(leftAsideSize === 250 ? collapseSize : 250)} icon="menu-3-line" type="warning" />
-        </div>
-    </nav>
-      <aside
-          className="fixed lg:top-0 lg:left-0 h-full lg:p-8 overflow-auto z-50"
-          style={{ width: leftAsideSize }}>
-          <div className="h-full lg:rounded-2xl bg-linear-to-br from-[#0F172A] via-[#1E1B4B] to-[#020617] p-6 shadow-2xl flex flex-col">
-            <div className="mb-8 flex justify-center">
-              {
-                leftAsideSize === collapseSize ?
-                <i className="ri-user-fill text-xl text-white animate__animated animate__fadeIn" title="profile"></i>
-                :
-                <div className="animate__animated animate__fadeIn">
-                  {
-                    session && 
-                    <Avatar
-                      title={session.fullname}
-                      subtitle={session.email}
-                      image={session.image || "/images/myimage.jpeg"}
-                      titleColor="white"
-                      subtitleColor="#c7c7ff"
-                      onClick={uploadImage}
-                    />
-                  }
-                </div>
-              }
-            </div>
-            <div className="my-2 h-px bg-white/10" />
-            <nav className="flex-1 space-y-1 ">
-              {menus.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  title={leftAsideSize === collapseSize ? item.label : ""}
-                  className="
-                    group flex items-center gap-4 py-3 rounded-xl
-                    text-gray-300
-                    hover:text-white
-                    hover:bg-white/10
-                    transition-all duration-200
-                  "
-                >
-                  <i
-                    className={`${item.icon} text-xl text-gray-400 group-hover:text-white`}
-                  />
+    const getPathname = (path: string)=>{
+        const firstPath = path.split("/").pop()
+        const finalPath = firstPath?.split("-").join(" ")
+        return finalPath
+    }
 
-                  {leftAsideSize !== collapseSize && (
-                    <span className="capitalize text-sm font-medium whitespace-nowrap">
-                      {item.label}
-                    </span>
-                  )}
-                </Link>
-              ))}
-            </nav>
+    const uploadImage = ()=>{
+        const input = document.createElement("input")
+        input.type = "file"
+        input.accept = "image/*"
+        input.click()
+        input.onchange = async ()=>{
+            if(!input.files)
+                return
 
-        <div className="my-6 h-px bg-white/10" />
+            const file = input.files[0]
+            const path = `profile-pictures/${uuid()}.png`
 
-          <button
-            onClick={logout}
-            title={leftAsideSize === collapseSize ? "Logout" : ""}
-            className="
-              flex items-center gap-4  py-3 rounded-xl
-              text-red-300
-              hover:text-red-400
-              hover:bg-red-500/10
-              transition-all duration-200
-            "
-          >
-            <i className="ri-logout-circle-r-line text-xl" />
-
-            {leftAsideSize !== collapseSize && (
-              <span className="text-sm font-medium">Logout</span>
-            )}
-          </button>
-        </div>
-      </aside>
-
-      <section
-        className="lg:py-8 lg:px-1 p-2 space-y-8"
-        style={{
-          width: isMobile ? "100%" : `calc(100% - ${leftAsideSize+rightAsideSize}px)`,
-          marginLeft: isMobile ? 0 : leftAsideSize,
-          transition: '0.2s'
-        }}
-      >
-        {/* {
-            !isBlacklisted &&
-            <FriendRequest />
-        } */}
-        <Card 
-          title={
-              <div className="flex items-center gap-4">
-                <button className="lg:block hidden bg-gray-100 w-10 h-10 rounded-full hover:bg-salte-200" onClick={()=>setLeftAsideSize(leftAsideSize === 350 ? collapseSize : 350)}>
-                  <i className="ri-arrow-left-line"></i>
-                </button>
-                <h1>{pathname.split("/").pop()}</h1>
-              </div>
-            } 
-            divider
-          >
-            {
-              pathname === "/app" ?
-                  <Dashboard />
-                    :
-                  <Outlet />
+            const payload = {
+                path,
+                type: file.type,
+                status: "public-read"
             }
-        </Card>
-        {/* {
-          !isBlacklisted &&
-          <FriendSuggestion />
-        } */}
-      </section>
 
-      <aside 
-        className="lg:block hidden bg-white fixed top-0 right-0 h-full p-8 overflow-auto space-y-8 order-1" 
-        style={{
-        width: rightAsideSize,
-        transition: '0.2s'
-        }}>
-          <FriendsOnline />
-      </aside>
-    </div>
-  )
+            try {
+                const options = {
+                    headers: {
+                        'Content-Type': file.type
+                    }
+                }
+                const {data} = await HttpInterceptor.post("/storage/upload", payload)
+                await HttpInterceptor.put(data.url, file, options)
+                const {data: user} = await HttpInterceptor.put("/auth/profile-picture", {path})
+                setSession({...session, image: user.image})
+                mutate("/auth/refresh-token")
+            }
+            catch(err)
+            {
+                console.log(err)
+            }
+        }
+    }
+
+    const ActiveSessionUi = ()=>{
+        if(!liveActiveSession)
+        {
+            navigate("/app")
+            return
+        }
+
+        return (
+            <div className="flex gap-3">
+                <img 
+                    src={liveActiveSession.image || "/images/myimage.jpeg"} 
+                    className="w-12 h-12 rounded-full object-cover" 
+                />
+                <div className="flex flex-col">
+                    <h1 className="font-medium capitalize">{liveActiveSession.fullname}</h1>
+                    <label className="text-xs text-green-400">Online</label>
+                </div>
+            </div>
+        )
+    }
+
+    return (
+        <div className="min-h-screen">
+            <nav className="lg:hidden flex justify-between items-center bg-linear-to-br from-indigo-900 via-purple-800 to-blue-900 sticky top-0 left-0 z-[20000] w-full py-4 px-6">
+                <Logo />
+                <div className="flex gap-4">
+                    <IconButton onClick={logout} icon="logout-circle-line" type="success" />
+                    <Link to="/app/friends">
+                        <IconButton icon="chat-ai-line" type="danger" />
+                    </Link>
+                    <IconButton  onClick={()=>setLeftAsideSize(leftAsideSize === 250 ? collapseSize : 250)} icon="menu-3-line" type="warning" />
+                </div>
+            </nav>
+            <aside 
+                className="bg-white fixed top-0 left-0 h-full lg:p-8 overflow-auto z-20000" 
+                style={{
+                    width: leftAsideSize,
+                    transition: '0.2s'
+                }}>
+                <div className="space-y-8 h-full lg:rounded-2xl p-8 bg-linear-to-br from-indigo-900 via-purple-800 to-blue-900">
+                        {
+                            leftAsideSize === collapseSize ?
+                            <i className="ri-user-fill text-xl text-white animate__animated animate__fadeIn"></i>
+                            :
+                            <div className="animate__animated animate__fadeIn">
+                                {
+                                    session &&
+                                    <Avatar 
+                                        title={session.fullname}
+                                        subtitle={session.email}
+                                        image={session.image || "/images/myimage.jpeg"}
+                                        titleColor="white"
+                                        subtitleColor="#ddd"
+                                        onClick={uploadImage}
+                                    />
+                                }
+                            </div>
+                        }
+                        <div>
+                            
+                            {
+                                menus.map((item, index)=>(
+                                    <Link key={index} to={item.href} className="flex items-center gap-4 text-gray-300 py-3 hover:text-white">
+                                        <i className={`${item.icon} text-xl`} title={item.label}></i>
+                                        <label className={`capitalize ${leftAsideSize === collapseSize ? 'hidden' : ''}`}>{item.label}</label>
+                                    </Link>
+                                ))
+                            }
+
+                            <button onClick={logout} className="flex items-center gap-2 text-gray-300 py-3 hover:text-white" title="Logout">
+                                <i className="ri-logout-circle-r-line text-xl"></i>
+                                <label className={leftAsideSize === collapseSize ? 'hidden' : ''}>Logout</label>
+                            </button>
+
+                        </div>
+                </div>
+            </aside>
+            
+            <section 
+                className="lg:py-8 lg:px-1 flex lg:flex-row flex-col gap-8 p-6" 
+                style={{
+                    width: isMobile ? '100%' : `calc(100% - ${leftAsideSize}px)`,
+                    marginLeft: isMobile ? 0 : leftAsideSize,
+                    transition: '0.2s'
+                }}
+            >
+                
+                {/* {
+                    !isBlacklisted &&
+                    <FriedsRequest />
+                } */}
+                <div className="flex-1 lg:order-1 order-2">
+                    <Card 
+                        title={
+                            <div className="flex gap-4 items-center">
+                                <button className="lg:block hidden bg-gray-100 w-10 h-10 rounded-full hover:bg-slate-200" onClick={()=>setLeftAsideSize(leftAsideSize === 350 ? collapseSize : 350)}>
+                                    <i className="ri-arrow-left-line"></i>
+                                </button>
+                                <h1>{paramsArray.length === 0 ? getPathname(pathname) : <ActiveSessionUi />}</h1>
+                            </div>
+                        } 
+                        divider
+                    >
+                        {
+                            pathname === "/app" ?
+                            <Dashboard />
+                            :
+                            <Outlet />
+                        }
+                    </Card>
+                </div>
+                {/* {
+                    !isBlacklisted &&
+                    <FriedsSuggestion />
+                } */}
+
+                <aside className="bg-white lg:w-100 lg:pr-6 lg:order-2 order-1">
+                    <FriendsOnline />
+                </aside>
+            </section>
+        </div>
+    )
 }
 
 export default Layout

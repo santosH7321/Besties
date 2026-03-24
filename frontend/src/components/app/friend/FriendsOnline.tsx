@@ -1,15 +1,21 @@
 import Card from "../../shared/Card"
 import socket from "../../../lib/Socket"
 import { useContext, useEffect, useState } from "react"
-import { Link } from "react-router-dom"
-import Context from "../../../Contex"
+import { useNavigate } from "react-router-dom"
+import Context from "../../../Context"
 
 const FriendsOnline = () => {
     const [onlineUsers, setOnlineUsers] = useState([])
-    const {session} = useContext(Context)
+    const {session, setLiveActiveSession} = useContext(Context)
+    const navigate = useNavigate()
 
     const onlineHandler = (users: any)=>{
         setOnlineUsers(users)
+    }
+
+    const generateActiveSession = (url: string, user: any)=>{
+        setLiveActiveSession(user)
+        navigate(url)
     }
 
     useEffect(()=>{
@@ -34,17 +40,17 @@ const FriendsOnline = () => {
                                     <h1 className="font-medium mb-1 capitalize">{item.fullname}</h1>
                                     <div className="flex items-center gap-3">
                                         <label className={`capitalize-first text-[10px] font-medium text-green-400`}>Online</label>
-                                        <Link to={`/app/chat/${item.id}`}>
+                                        <button className="hover:cursor-pointer" onClick={()=>generateActiveSession(`/app/chat/${item.id}`, item)}>
                                             <i className="ri-chat-ai-line text-rose-400"></i>
-                                        </Link>
+                                        </button>
 
-                                        <Link to={`/app/chat/${item.id}`}>
+                                        <button className="hover:cursor-pointer" onClick={()=>generateActiveSession(`/app/audio-chat/${item.id}`, item)}>
                                             <i className="ri-phone-line text-amber-400"></i>
-                                        </Link>
+                                        </button>
 
-                                        <Link to={`/app/video-chat/${item.id}`}>
+                                        <button className="hover:cursor-pointer" onClick={()=>generateActiveSession(`/app/video-chat/${item.id}`, item)}>
                                             <i className="ri-video-on-ai-line text-green-400"></i>
-                                        </Link>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -56,4 +62,4 @@ const FriendsOnline = () => {
     )
 }
 
-export default FriendsOnline
+export default FriendsOnline;

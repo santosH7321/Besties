@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react"
 import { Navigate, Outlet } from "react-router-dom"
-import Context from "../Contex"
+import Context from "../Context"
 import HttpInterceptor from "../lib/HttpInterceptor"
 const RedirectGuard = () => {
     const {session, setSession } = useContext(Context)
