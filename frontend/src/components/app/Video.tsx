@@ -14,7 +14,23 @@ const config = {
   ]
 }
 
-type CallType = "pending" | "calling" | "incomming" | "talking" | "end";
+interface OnOfferInterface {
+    offer: RTCSessionDescriptionInit
+    from: string
+}
+
+interface OnAnswerInterface {
+    answer: RTCSessionDescriptionInit
+    from: string
+}
+
+
+interface OnCandidateInterface {
+    candidate: RTCIceCandidateInit
+    from: string
+}
+
+type CallType = "pending" | "calling" | "incomming" | "talking" | "end"
 
 function getCallTiming(seconds: number): string {
   const hrs = Math.floor(seconds / 3600)
@@ -46,7 +62,7 @@ const Video = () => {
     const [isVideoSharing, setIsVideoSharing] = useState(false)
     const [isScreenSharing, setIsScreenSharing] = useState(false)
     const [isMic, setIsMic] = useState(false)
-    const [status, setStatus] = useState<CallType>("pending");
+    const [status, setStatus] = useState<CallType>("pending")
     const [timer, setTimer] = useState(0)
 
     const toggleScreen = async ()=>{
@@ -93,7 +109,7 @@ const Video = () => {
 
             if(!isVideoSharing)
             {
-                const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true})
+                const stream = await navigator.mediaDevices.getUserMedia({video: true})
     
                 localVideo.srcObject = stream
                 localStreamRef.current = stream
@@ -170,21 +186,48 @@ const Video = () => {
         if(!localStream)
             return
         
+        localStream.getTracks().forEach((track)=>{
+            rtc.current?.addTrack(track, localStream)
+        })
+
         rtc.current.onicecandidate = (e)=>{
-            console.log(e.candidate)
+            if(e.candidate)
+            {
+                socket.emit("candidate", {candidate: e.candidate, to: id})
+            }
         }
 
         rtc.current.onconnectionstatechange = ()=>{
             console.log(rtc.current?.connectionState)
         }
 
-        rtc.current.ontrack = ()=>{
-            console.log("Something is comming from remote user")
-        }
+        rtc.current.ontrack = (e)=>{
+            const remoteStream = e.streams[0]
+            const remoteVideo = remoteVideoRef.current
 
-        localStream.getTracks().forEach((track)=>{
-            rtc.current?.addTrack(track, localStream)
-        })
+            if(!remoteStream || !remoteVideo)
+                return
+
+            remoteVideo.srcObject = remoteStream
+
+            const videoTracks = remoteStream.getVideoTracks()[0]
+            if(videoTracks)
+            {
+                videoTracks.onmute = ()=>{
+                    console.log("video off")
+                    remoteVideo.style.display = "none"
+                }
+
+                videoTracks.onunmute = ()=>{
+                    remoteVideo.style.display = "block"
+                }
+
+                videoTracks.onended = ()=>{
+                    remoteVideo.srcObject = null
+                    remoteVideo.style.display = "none"
+                }
+            }
+        }
     }
 
     const startCall = async ()=>{
@@ -199,14 +242,14 @@ const Video = () => {
 
             const offer = await rtc.current.createOffer()
             await rtc.current.setLocalDescription(offer)
-            setStatus("calling");
+            setStatus("calling")
             notify.open({
-                title: "Santosh Kumar",
+                title: "Nishant Ranjan",
                 description: "Calling...",
                 duration: 30,
                 placement: "bottomRight",
                 actions: [
-                    <button key="end" className='bg-rose-400 px-3 py-1 rounted text-white hover:bg-rose-500'>End call</button>
+                    <button key="end" className='bg-rose-400 px-3 py-1 rounded text-white hover:bg-rose-500' onClick={endCall}>End call</button>
                 ]
             })
             socket.emit("offer", {offer, to: id})
@@ -217,33 +260,105 @@ const Video = () => {
         }
     }
 
+    const accept = async (payload: OnOfferInterface)=>{
+        try {
+            webRtcConnection()
+
+            if(!rtc.current)
+                return
+
+            const offer = new RTCSessionDescription(payload.offer)
+            await rtc.current.setRemoteDescription(offer)
+
+            const answer = await rtc.current.createAnswer()
+            await rtc.current.setLocalDescription(answer)
+
+            notify.destroy()
+            setStatus("talking")
+            socket.emit("answer", {answer, to: id})
+        }
+        catch(err)
+        {
+            CatchError(err)
+        }
+    }
+
+    // too end call on local computer
     const endCall = ()=>{
-        alert()
+        setStatus("end")
+        socket.emit("end", {to: id})
+    }
+
+    // too end call on remote computer
+    const onEnd = ()=>{
+        endCall()
     }
 
     // Event listerners
-    const onOffer = (payload: any)=>{
-        audio.current = new Audio("/sound/ring.mp3")
-        audio.current.load()
-        audio.current.play()
-        
+    const onOffer = (payload: OnOfferInterface)=>{  
+        setStatus("incomming")
         notify.open({
-            message: "Santosh Kumar",
+            title: "Santosh Kumar",
             description: "Incomming call...",
             duration: 30,
-            placement: "bottomRight"
+            placement: "bottomRight",
+            actions: [
+                <div key="calls" className='space-x-4'>
+                    <button className='bg-green-400 px-3 py-1 rounded text-white hover:bg-green-500' onClick={()=>accept(payload)}>Accept</button>
+                    <button className='bg-rose-400 px-3 py-1 rounded text-white hover:bg-rose-500' onClick={endCall}>Reject</button>
+                </div>
+            ]
         })
+    }
+
+    // Connect both user via webrtc
+    const onCandidate = async (payload: OnCandidateInterface)=>{
+        try {
+            if(!rtc.current)
+                return
+
+            const candidate = new RTCIceCandidate(payload.candidate)
+            await rtc.current.addIceCandidate(candidate)
+        }
+        catch(err)
+        {
+            CatchError(err)
+        }
+    }
+
+    const onAnswer = async (payload: OnAnswerInterface)=>{
+        try {
+            if(!rtc.current)
+                return
+
+            const answer = new RTCSessionDescription(payload.answer)
+            await rtc.current.setRemoteDescription(answer)
+
+            setStatus("talking")
+            notify.destroy()
+        }
+        catch(err)
+        {
+            CatchError(err)
+        }
     }
 
     useEffect(()=>{
         toggleVideo()
         socket.on("offer", onOffer)
-
+        socket.on("candidate", onCandidate)
+        socket.on("answer", onAnswer)
+        socket.on("end", onEnd)
+        
         return ()=>{
             socket.off("offer", onOffer)
+            socket.off("candidate", onCandidate)
+            socket.off("answer", onAnswer)
+            socket.off("end", onEnd)
         }
     }, [])
 
+    // control sound
     useEffect(()=>{
         let interval: any
 
@@ -297,6 +412,7 @@ const Video = () => {
             clearInterval(interval)
         }
     }, [status])
+
     return (
         <div className='space-y-8'>
             <div ref={remoteVideoContainerRef} className='bg-black w-full h-0 relative pb-[56.25%] rounded-xl'>
@@ -304,7 +420,7 @@ const Video = () => {
                 <button className='absolute bottom-5 left-5 text-xs px-2.5 py-1 rounded-lg text-white' style={{
                     background: 'rgba(0,0,0,0.7)'
                 }}>
-                    Nishant Ranjan
+                    Santosh Kumar
                 </button>
 
                 <button onClick={()=>toggleFullScreen("remote")} className='absolute bottom-5 right-5 text-xs px-2.5 py-1 rounded-lg text-white transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110' style={{
