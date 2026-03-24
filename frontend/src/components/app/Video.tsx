@@ -14,6 +14,22 @@ const config = {
   ]
 }
 
+type CallType = "pending" | "calling" | "incomming" | "talking" | "end";
+
+function getCallTiming(seconds: number): string {
+  const hrs = Math.floor(seconds / 3600)
+    .toString()
+    .padStart(2, '0');
+  const mins = Math.floor((seconds % 3600) / 60)
+    .toString()
+    .padStart(2, '0');
+  const secs = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, '0');
+
+  return `${hrs}:${mins}:${secs}`;
+}
+
 const Video = () => {
     const {session} = useContext(Context)
     const {id} = useParams()
@@ -30,6 +46,8 @@ const Video = () => {
     const [isVideoSharing, setIsVideoSharing] = useState(false)
     const [isScreenSharing, setIsScreenSharing] = useState(false)
     const [isMic, setIsMic] = useState(false)
+    const [status, setStatus] = useState<CallType>("pending");
+    const [timer, setTimer] = useState(0)
 
     const toggleScreen = async ()=>{
         try {
@@ -181,6 +199,16 @@ const Video = () => {
 
             const offer = await rtc.current.createOffer()
             await rtc.current.setLocalDescription(offer)
+            setStatus("calling");
+            notify.open({
+                title: "Santosh Kumar",
+                description: "Calling...",
+                duration: 30,
+                placement: "bottomRight",
+                actions: [
+                    <button key="end" className='bg-rose-400 px-3 py-1 rounted text-white hover:bg-rose-500'>End call</button>
+                ]
+            })
             socket.emit("offer", {offer, to: id})
         }
         catch(err)
@@ -199,7 +227,7 @@ const Video = () => {
         audio.current.load()
         audio.current.play()
         
-        notification.open({
+        notify.open({
             message: "Santosh Kumar",
             description: "Incomming call...",
             duration: 30,
@@ -208,6 +236,7 @@ const Video = () => {
     }
 
     useEffect(()=>{
+        toggleVideo()
         socket.on("offer", onOffer)
 
         return ()=>{
@@ -215,6 +244,59 @@ const Video = () => {
         }
     }, [])
 
+    useEffect(()=>{
+        let interval: any
+
+        if(status === "pending")
+            return
+
+        if(!audio.current)
+        {
+            clearInterval(interval)
+            audio.current = new Audio()
+        }
+
+        if(status === "calling" || status === "incomming")
+        {
+            clearInterval(interval)
+            audio.current.pause()
+            audio.current.src = "/sound/ring.mp3"
+            audio.current.currentTime = 0
+            audio.current.load()
+            audio.current.play()
+        }
+
+        if(status === "talking")
+        {
+            clearInterval(interval)
+            audio.current.pause()
+            audio.current.currentTime = 0
+            interval = setInterval(() => {
+                setTimer((prev)=>prev+1)
+            }, 1000);
+        }
+
+        if(status === "end")
+        {
+            clearInterval(interval)
+            audio.current.pause()
+            audio.current.src = "/sound/reject.mp3"
+            audio.current.currentTime = 0
+            audio.current.load()
+            audio.current.play()
+            notify.destroy()
+        }
+
+        return ()=>{
+            if(audio.current)
+            {
+                audio.current.pause()
+                audio.current.currentTime = 0
+                audio.current = null
+            }
+            clearInterval(interval)
+        }
+    }, [status])
     return (
         <div className='space-y-8'>
             <div ref={remoteVideoContainerRef} className='bg-black w-full h-0 relative pb-[56.25%] rounded-xl'>
@@ -287,8 +369,19 @@ const Video = () => {
                     
                 </div>
                 <div className='space-x-4'>
-                    <Button icon="phone-line" type="success" onClick={startCall}>Call</Button>
-                    <Button icon="close-circle-fill" type="danger" onClick={endCall}>End</Button>
+                    {
+                        status === "talking" &&
+                        <label>{getCallTiming(timer)}</label>
+                    }
+                    {
+                        (status === "pending" || status === "end") &&
+                        <Button icon="phone-line" type="success" onClick={startCall}>Call</Button>
+                    }
+
+                    {
+                        status === "talking" &&
+                        <Button icon="close-cirrcle-line" type="danger" onClick={endCall}>End</Button>
+                    }
                 </div>
             </div>
             {notifyUi}

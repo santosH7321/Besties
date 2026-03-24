@@ -5,20 +5,17 @@ import { useContext, useEffect, useState } from "react"
 import Context from "../../Contex"
 import HttpInterceptor from "../../lib/HttpInterceptor"
 import {v4 as uuid} from "uuid"
-import useSWR, { mutate } from "swr"
-import Fetcher from "../../lib/Fetcher"
+import { mutate } from "swr"
 import CatchError from "../../lib/CatchError"
 import Dashboard from "./Dashboard"
 import FriendRequest from "./friend/FriendRequest"
 import FriendSuggestion from "./friend/FriendSuggestion"
-import FriendList from "./friend/FriendList"
 import { useMediaQuery } from "react-responsive"
 import Logo from "../shared/Logo"
 import IconButton from "../shared/IconButton"
 import FriendsOnline from "./friend/FriendsOnline"
 
 
-const EightMinInMs = 8*60*1000;
 
 
 const Layout = () => {
@@ -38,17 +35,10 @@ const Layout = () => {
 
   const isBlacklisted = friendsUiBlacklist.some((path)=>pathname === path)
 
-  const {error} = useSWR("/auth/refresh-token", Fetcher, {
-    refreshInterval: EightMinInMs,
-    shouldRetryOnError: false
-  })
+
   const {session, setSession} = useContext(Context)
 
-  useEffect(() => {
-    if(error){
-      logout();
-    }
-  }, [error])
+  
 
   useEffect(()=>{
         setLeftAsideSize(isMobile ? 0 : 350)
@@ -219,10 +209,10 @@ const Layout = () => {
           transition: '0.2s'
         }}
       >
-        {
+        {/* {
             !isBlacklisted &&
             <FriendRequest />
-        }
+        } */}
         <Card 
           title={
               <div className="flex items-center gap-4">
@@ -241,14 +231,14 @@ const Layout = () => {
                   <Outlet />
             }
         </Card>
-        {
+        {/* {
           !isBlacklisted &&
           <FriendSuggestion />
-        }
+        } */}
       </section>
 
       <aside 
-        className="lg:block hidden bg-white fixed top-0 right-0 h-full p-8 overflow-auto space-y-8" 
+        className="lg:block hidden bg-white fixed top-0 right-0 h-full p-8 overflow-auto space-y-8 order-1" 
         style={{
         width: rightAsideSize,
         transition: '0.2s'
