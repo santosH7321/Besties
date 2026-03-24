@@ -22,6 +22,7 @@ import corsConfig from "./utils/cors";
 import ChatSocket from "./socket/chat.socket";
 import ChatRouter from "./router/chat.router";
 import VideoSocket from "./socket/video.socket";
+import TwilioRouter from "./router/twilio.router";
 
 
 const app = express();
@@ -50,3 +51,4 @@ app.use("/auth", AuthRouter);
 app.use("/storage",AuthMiddleware, StorageRouter);
 app.use("/friend", AuthMiddleware, FriendRouter);
 app.use("/chat", ChatRouter);
+app.use("/twilio", TwilioRouter)

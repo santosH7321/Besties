@@ -3,8 +3,9 @@ import { Server } from "socket.io"
 const VideoSocket = (io: Server)=>{
     io.on("connection", (socket)=>{ 
 
-        socket.on("offer", ({offer, to})=>{
-            io.to(to).emit("offer", {offer, from: socket.id})
+        socket.on("offer", ({offer, to, from})=>{
+            from.socketId = socket.id
+            io.to(to).emit("offer", {offer, from})
         })
 
         socket.on("candidate", ({candidate, to})=>{
@@ -17,6 +18,10 @@ const VideoSocket = (io: Server)=>{
 
         socket.on("end", ({to})=>{
             io.to(to).emit("end", {from: socket.id})
+        })
+
+        socket.on("disconnect", ()=>{
+            console.log("user dicoonected")
         })
     })
 }
