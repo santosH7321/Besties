@@ -38,11 +38,11 @@ const FriendsOnline = () => {
                                             <i className="ri-chat-ai-line text-rose-400"></i>
                                         </Link>
 
-                                        <Link to="/app/chat">
+                                        <Link to={`/app/chat/${item.id}`}>
                                             <i className="ri-phone-line text-amber-400"></i>
                                         </Link>
 
-                                        <Link to="/app/chat">
+                                        <Link to={`/app/video-chat/${item.id}`}>
                                             <i className="ri-video-on-ai-line text-green-400"></i>
                                         </Link>
                                     </div>
