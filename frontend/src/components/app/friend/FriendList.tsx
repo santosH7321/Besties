@@ -1,40 +1,61 @@
 import type { FC } from 'react'
 import Card from '../../shared/Card'
 import SmallButton from '../../shared/SmallButton'
-import IconButton from '../../shared/IconButton'
-import { Link } from 'react-router-dom'
+import useSWR, { mutate } from 'swr'
+import Fetcher from '../../../lib/Fetcher'
+import { Empty, Skeleton } from 'antd'
+import CatchError from '../../../lib/CatchError'
+import HttpInterceptor from '../../../lib/HttpInterceptor'
 
 interface FriendsListInterface {
   gap?: number
   columns?: number
 }
 
-const FriendList: FC<FriendsListInterface> = ({gap=8, columns=3}) => {
+const FriendsList: FC<FriendsListInterface> = ({gap=8, columns=3}) => {
+  const {data, error, isLoading}  = useSWR("/friend", Fetcher)
+
+  const unfriend = async (id: string)=>{
+    try {
+      await HttpInterceptor.delete(`/friend/${id}`)
+      mutate("/friend")
+      mutate("/friend/suggestion")
+    }
+    catch(err)
+    {
+      CatchError(err)
+    }
+  }
+
+  if(isLoading)
+    return <Skeleton active />
+
+  if(error)
+    return <Empty />
+
+  if(data.length === 0)
+    return <Empty />
+
   return (
     <div className={`grid grid-cols-${columns} gap-${gap}`}>
       {
-        Array(12).fill(0).map((item, index)=>(
+        data.map((item: any)=>(
           <Card>
               <div className='flex flex-col items-center gap-3'>
-                <img src="/images/myimage.jpeg" className='rounded-full object-cover w-20 h-20' />
-                <h1>Santosh Kumar</h1>
+                <img 
+                  src={item.friend.image || "/images/myimage.jpeg"}
+                  className='rounded-full object-cover w-20 h-20' 
+                />
+                <h1 className='capitalize'>{item.friend.fullname}</h1>
                 <div className='relative'>
-                  <SmallButton type="danger" icon="user-minus-line">Unfollow</SmallButton>
-                  <div className='w-2 h-2 bg-green-400 rounded-full absolute -top-1 -right-1 animate__animated animate__pulse animate__infinite'/>
-                </div>
-                <div className='flex gap-3 mt-3'>
-                  <Link to="/app/chat">
-                    <IconButton icon='chat-ai-line' type="warning" />
-                  </Link>
-                  <Link to="/app/audio-chat">
-                    <IconButton icon='phone-line' type="success" />
-                  </Link>
-                  <Link to="/app/video-chat">
-                    <IconButton icon='video-on-ai-line' type="danger" />
-                  </Link>
+                  {
+                    item.status === "requested" ?
+                    <SmallButton icon='check-double-line'>Friend request sent</SmallButton>
+                    :
+                    <SmallButton type="danger" icon="user-minus-line" onClick={()=>unfriend(item._id)}>Unfriend</SmallButton>
+                  }
                 </div>
               </div>
-              
           </Card>
         ))
       }
@@ -42,4 +63,4 @@ const FriendList: FC<FriendsListInterface> = ({gap=8, columns=3}) => {
   )
 }
 
-export default FriendList
+export default FriendsList
