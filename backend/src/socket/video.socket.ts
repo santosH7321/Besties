@@ -3,9 +3,9 @@ import { Server } from "socket.io"
 const VideoSocket = (io: Server)=>{
     io.on("connection", (socket)=>{ 
 
-        socket.on("offer", ({offer, to, from})=>{
+        socket.on("offer", ({offer, to, from, type})=>{
             from.socketId = socket.id
-            io.to(to).emit("offer", {offer, from})
+            io.to(to).emit("offer", {offer, from, type})
         })
 
         socket.on("candidate", ({candidate, to})=>{
