@@ -212,7 +212,6 @@ const Chat = () => {
                                     <div className='relative bg-violet-50 px-4 py-2 rounded-lg flex-1 text-blue-500 border border-violet-100'>
                                         <h1 className='font-medium text-black capitalize'>{item.from.fullname}</h1>
                                         { item.file && <AttachmentUi file={item.file} /> }
-                                        <label>{item.message}</label>
                                         <i className="ri-arrow-right-s-fill absolute top-0 -right-5 text-4xl text-violet-50"></i>
                                         <label>{item.message}</label>
                                         { 
