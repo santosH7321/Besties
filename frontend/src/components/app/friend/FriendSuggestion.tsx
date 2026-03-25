@@ -3,34 +3,57 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import Card from '../../shared/Card';
 import SmallButton from '../../shared/SmallButton';
+import Fetcher from '../../../lib/Fetcher';
+import useSWR, { mutate } from 'swr';
+import { Empty, Skeleton } from 'antd';
+import CatchError from '../../../lib/CatchError';
+import HttpInterceptor from '../../../lib/HttpInterceptor';
+import { toast } from 'react-toastify';
 
-const FriendSuggestion = ()=>{
+const FriedsSuggestion = ()=>{
+  const {data,  error, isLoading} = useSWR('/friend/suggestion', Fetcher)
+
+  if(isLoading)
+    return <Skeleton active />
+
+  if(error)
+    return <Empty />
+
+  const sendFriendRequest = async (id: string)=>{
+    try {
+      await HttpInterceptor.post('/friend', {friend: id})
+      mutate("/friend/suggestion")
+      mutate("/friend")
+      toast.success("Friend request sent", {position: 'top-center'})
+    }
+    catch(err)
+    {
+      CatchError(err)
+    }
+  }
+
   return (
     <Card title="Suggestions" divider>
+      {
+        data.length === 0 &&
+        <Empty />
+      }
       <div>
         <Swiper
-          slidesPerView={4}
+          slidesPerView={2}
           spaceBetween={30}
           className="mySwiper"
-          breakpoints={{
-            0: {
-              slidesPerView: 2,
-            },
-            640: {
-              slidesPerView: 3,
-            },
-            1024: {
-              slidesPerView: 4,
-            }
-          }}
         >
           {
-            Array(5).fill(0).map((item, index)=>(
+            data.map((item: any, index: number)=>(
               <SwiperSlide key={index}>
                   <div className='flex flex-col items-center gap-2 border border-gray-100 p-3 rounded-lg'>
-                    <img src="/images/myimage.jpeg" className='w-20 h-20 rounded-full object-cover' />
-                    <h1 className='text-base font-medium text-black'>Santosh Kumar</h1>
-                    <SmallButton type='success' icon="user-add-line">Add</SmallButton>
+                    <img 
+                      src={item.image || "/images/myimage.jpeg" }
+                      className='w-20 h-20 rounded-full object-cover' 
+                    />
+                    <h1 className='text-base font-medium text-black capitalize'>{item.fullname}</h1>
+                    <SmallButton type='success' icon="user-add-line" onClick={()=>sendFriendRequest(item._id)}>Add</SmallButton>
                   </div>
               </SwiperSlide>
             ))
@@ -41,4 +64,4 @@ const FriendSuggestion = ()=>{
   );
 }
 
-export default FriendSuggestion
+export default FriedsSuggestion

@@ -14,6 +14,8 @@ import IconButton from "../shared/IconButton"
 import FriendsOnline from "./friend/FriendsOnline"
 import socket from "../../lib/Socket"
 import type { OnOfferInterface } from "./Video"
+import FriendRequest from "./friend/FriendRequest"
+import FriendSuggestion from "./friend/FriendSuggestion"
 
 
 const Layout = () => {
@@ -43,12 +45,6 @@ const Layout = () => {
         navigate(`/app/video-chat/${payload.from.socketId}`)
     }
 
-    // useEffect(()=>{
-    //     if(error)
-    //     {
-    //         logout()
-    //     }
-    // }, [error])
 
     useEffect(()=>{
         socket.on("offer", onOffer)
@@ -224,11 +220,7 @@ const Layout = () => {
                     transition: '0.2s'
                 }}
             >
-                
-                {/* {
-                    !isBlacklisted &&
-                    <FriedsRequest />
-                } */}
+               
                 <div className="flex-1 lg:order-1 order-2">
                     <Card 
                         title={
@@ -249,12 +241,10 @@ const Layout = () => {
                         }
                     </Card>
                 </div>
-                {/* {
-                    !isBlacklisted &&
-                    <FriedsSuggestion />
-                } */}
-
-                <aside className="bg-white lg:w-100 lg:pr-6 lg:order-2 order-1">
+                
+                <aside className="bg-white lg:w-100 lg:pr-6 lg:order-2 order-1 flex flex-col gap-8">
+                    <FriendRequest />
+                    <FriendSuggestion />
                     <FriendsOnline />
                 </aside>
             </section>
