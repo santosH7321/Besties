@@ -11,21 +11,22 @@ import HttpInterceptor from '../../lib/HttpInterceptor'
 export interface OnOfferInterface {
     offer: RTCSessionDescriptionInit
     from: any
+    type: 'video' | 'audio' | 'chat'
 }
 
-interface OnAnswerInterface {
+export interface OnAnswerInterface {
     answer: RTCSessionDescriptionInit
     from: string
 }
 
 
-interface OnCandidateInterface {
+export interface OnCandidateInterface {
     candidate: RTCIceCandidateInit
     from: string
 }
 
-type CallType = "pending" | "calling" | "incomming" | "talking" | "end"
-type AudioSrcType = "/sound/ring.mp3" | "/sound/reject.mp3" | "/sound/busy.mp3"
+export type CallType = "pending" | "calling" | "incomming" | "talking" | "end"
+export type AudioSrcType = "/sound/ring.mp3" | "/sound/reject.mp3" | "/sound/busy.mp3" | "/sound/chat.mp3"
 
 function getCallTiming(seconds: number): string {
   const hrs = Math.floor(seconds / 3600)
@@ -297,7 +298,7 @@ const Video = () => {
                     <button key="end" className='bg-rose-400 px-3 py-1 rounded text-white hover:bg-rose-500' onClick={endCallFromLocal}>End call</button>
                 ]
             })
-            socket.emit("offer", {offer, to: id, from: session})
+            socket.emit("offer", {offer, to: id, from: session, type: 'video'})
         }
         catch(err)
         {
@@ -343,6 +344,8 @@ const Video = () => {
 
         if(remoteVideoRef.current)
             remoteVideoRef.current.srcObject = null
+
+
     }
 
     // too end call on local computer
@@ -489,7 +492,7 @@ const Video = () => {
 
             <div className='grid grid-cols-3 gap-4'>
                 <div ref={localVideoContainerRef} className='bg-black w-full h-0 relative pb-[56.25%] rounded-xl'>
-                    <video ref={localVideoRef} className='w-full h-full absolute top-0 left-0'autoPlay playsInline></video>
+                    <video ref={localVideoRef} muted className='w-full h-full absolute top-0 left-0'autoPlay playsInline></video>
                     <button className='capitalize absolute bottom-2 left-2 text-xs px-2.5 py-1 rounded-lg text-white' style={{
                         background: 'rgba(0,0,0, 0.7)'
                     }}>
@@ -557,7 +560,7 @@ const Video = () => {
                     }
                 </div>
             </div>
-            <Modal open={open} footer={null} centered mask={{ closable: false }} onCancel={redirectOnCallEnd}>
+            <Modal open={open} footer={null} centered maskClosable onCancel={redirectOnCallEnd}>
                     <div className='text-center space-y-4'>
                         <h1 className='text-2xl font-semibold'>Call Ended</h1>
                         <Button type="danger" onClick={redirectOnCallEnd}>Thank you !</Button>
