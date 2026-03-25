@@ -6,7 +6,7 @@ import Dashboard from "./Dashboard"
 import Context from "../../Context"
 import HttpInterceptor from "../../lib/HttpInterceptor"
 import {v4 as uuid} from 'uuid'
-import { mutate } from "swr"
+import useSWR, { mutate } from "swr"
 import CatchError from "../../lib/CatchError"
 import { useMediaQuery } from 'react-responsive'
 import Logo from "../shared/Logo"
@@ -17,7 +17,9 @@ import type { AudioSrcType, OnOfferInterface } from "./Video"
 import FriendRequest from "./friend/FriendRequest"
 import FriendSuggestion from "./friend/FriendSuggestion"
 import { notification } from "antd"
+import Fetcher from "../../lib/Fetcher"
 
+const EightMinuteInMs = 8*60*1000
 
 const Layout = () => {
     const isMobile = useMediaQuery({ query: '(max-width: 1224px)' })
@@ -54,15 +56,20 @@ const Layout = () => {
 
     const navigate = useNavigate()
 
+    const { error } = useSWR("/auth/refresh-token", Fetcher, {
+        refreshInterval: EightMinuteInMs,
+        shouldRetryOnError: false
+    })
 
-    const friendsUiBlacklist = [
-            "/app/friends",
-            "/app/chat",
-            "/app/audio-chat",
-            "/app/video-chat"
-    ]
 
-    const isBlacklisted = friendsUiBlacklist.some((path)=>pathname === path)
+    // const friendsUiBlacklist = [
+    //         "/app/friends",
+    //         "/app/chat",
+    //         "/app/audio-chat",
+    //         "/app/video-chat"
+    // ]
+
+     // const isBlacklisted = friendsUiBlacklist.some((path)=>pathname === path)
 
     const onOffer = (payload: OnOfferInterface)=>{
         setSdp(payload)
@@ -100,6 +107,22 @@ const Layout = () => {
         })
     }
 
+    const logout = async ()=>{
+        try {
+            await HttpInterceptor.post("/auth/logout")
+            navigate("/login")
+        }
+        catch(err)
+        {
+            CatchError(err)
+        }
+    }
+    
+    useEffect(() => {
+        if(error) {
+            logout()
+        }
+    }, [error])
 
     useEffect(()=>{
         socket.on("offer", onOffer)
@@ -137,16 +160,7 @@ const Layout = () => {
         }
     ]
 
-    const logout = async ()=>{
-        try {
-            await HttpInterceptor.post("/auth/logout")
-            navigate("/login")
-        }
-        catch(err)
-        {
-            CatchError(err)
-        }
-    }
+    
 
     const getPathname = (path: string)=>{
         const firstPath = path.split("/").pop()
