@@ -18,9 +18,28 @@ export const addFriends = async (req: SessionInterface, res: Response) => {
 
 export const fetchFriends = async (req: SessionInterface, res: Response) => {
     try {
-        const user = req.session?.id;
-        const friends = await FriendModel.find({user}).populate('friend')
-        res.json(friends)
+        const userId = req.session?.id
+        const friends = await FriendModel.find({
+            status: 'accepted',
+            $or: [
+                {user: userId},
+                {friend: userId}
+            ]
+        })
+        .populate('friend')
+        .populate('user')
+
+        const modified = friends.map((item: any)=>{
+            const isUser = item.user._id.toString() === userId
+            return {
+                _id: item._id,
+                friend: isUser ? item.friend : item.user,
+                status: item.status,
+                createdAt: item.createdAt,
+                updatedAt: item.updatedAt
+            }
+        })
+        res.json(modified)
     }
     catch(err){
         CatchError(err, res, "Failed to send friend request");
