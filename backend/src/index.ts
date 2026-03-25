@@ -24,6 +24,7 @@ import ChatRouter from "./router/chat.router";
 import VideoSocket from "./socket/video.socket";
 import TwilioRouter from "./router/twilio.router";
 import PaymentRouter from "./router/payment.router";
+import PostRouter from "./router/post.router";
 
 
 const app = express();
@@ -54,3 +55,4 @@ app.use("/friend", AuthMiddleware, FriendRouter);
 app.use("/chat", ChatRouter);
 app.use("/twilio", TwilioRouter);
 app.use("/payment", PaymentRouter)
+app.use("/post", AuthMiddleware, PostRouter)
