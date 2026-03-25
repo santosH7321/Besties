@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation, useNavigate, useParams } from "react-router-dom"
 import Avatar from "../shared/Avatar"
 import Card from "../shared/Card"
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import Dashboard from "./Dashboard"
 import Context from "../../Context"
 import HttpInterceptor from "../../lib/HttpInterceptor"
@@ -13,9 +13,10 @@ import Logo from "../shared/Logo"
 import IconButton from "../shared/IconButton"
 import FriendsOnline from "./friend/FriendsOnline"
 import socket from "../../lib/Socket"
-import type { OnOfferInterface } from "./Video"
+import type { AudioSrcType, OnOfferInterface } from "./Video"
 import FriendRequest from "./friend/FriendRequest"
 import FriendSuggestion from "./friend/FriendSuggestion"
+import { notification } from "antd"
 
 
 const Layout = () => {
@@ -26,6 +27,30 @@ const Layout = () => {
     const {pathname} = useLocation()
     const params = useParams()
     const paramsArray = Object.keys(params)
+    const audio = useRef<HTMLAudioElement | null>(null)
+    const [notify, notifyUi] = notification.useNotification()
+
+    const stopAudio = ()=>{
+            if(!audio.current)
+                return
+    
+            const player = audio.current
+            player.pause()
+            player.currentTime = 0
+        }
+    
+        const playAudio = (src: AudioSrcType, loop: boolean = false)=>{
+            stopAudio()
+            
+            if(!audio.current)
+                audio.current = new Audio()
+    
+            const player = audio.current
+            player.src = src
+            player.loop = loop
+            player.load()
+            player.play()
+        }
 
     const navigate = useNavigate()
 
@@ -42,15 +67,47 @@ const Layout = () => {
     const onOffer = (payload: OnOfferInterface)=>{
         setSdp(payload)
         setLiveActiveSession(payload.from)
-        navigate(`/app/video-chat/${payload.from.socketId}`)
+
+        if(payload.type === "video")
+            return navigate(`/app/video-chat/${payload.from.socketId}`)
+
+        if(payload.type === "audio")
+            return navigate(`/app/audio-chat/${payload.from.socketId}`)
+        
+    }
+
+
+    const startChat = (payload: any) => {
+        notify.destroy()
+        setLiveActiveSession(payload.from)
+        navigate(`/app/chat/${payload.from.id}`)
+    }
+
+    const onMessage = (payload: any) => {
+        if(location.href.includes("/app/chat"))
+            return 
+
+        playAudio("/sound/chat-mess.mp3")
+        
+        notify.open({
+            title: <h1 className="font-medium capitalize">{payload.from.fullname}</h1>,
+            description: payload.message,
+            placement: "bottomRight",
+            duration: 30,
+            actions: [
+                <button key="chat" className="bg-green-400 hover:bg-green-500 text-white rounded px-6 py-2" onClick={() => startChat(payload)}>Start chat</button>
+            ]
+        })
     }
 
 
     useEffect(()=>{
         socket.on("offer", onOffer)
+        socket.on("message", onMessage)
 
         return ()=>{
             socket.off("offer", onOffer)
+            socket.off("message", onMessage)
         }
     }, [])
 
@@ -247,6 +304,7 @@ const Layout = () => {
                     <FriendSuggestion />
                     <FriendsOnline />
                 </aside>
+                {notifyUi}
             </section>
         </div>
     )

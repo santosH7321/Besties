@@ -26,7 +26,7 @@ export interface OnCandidateInterface {
 }
 
 export type CallType = "pending" | "calling" | "incomming" | "talking" | "end"
-export type AudioSrcType = "/sound/ring.mp3" | "/sound/reject.mp3" | "/sound/busy.mp3" | "/sound/chat.mp3"
+export type AudioSrcType = "/sound/ring.mp3" | "/sound/reject.mp3" | "/sound/busy.mp3" | "/sound/chat.mp3" | "/sound/chat-mess.mp3"
 
 function getCallTiming(seconds: number): string {
   const hrs = Math.floor(seconds / 3600)
