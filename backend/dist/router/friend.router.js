@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const friend_controller_1 = require("../controllers/friend.controller");
+const FriendRouter = (0, express_1.Router)();
+FriendRouter.post("/", friend_controller_1.addFriends);
+FriendRouter.put("/:id", friend_controller_1.updateFriendStatus);
+FriendRouter.get("/", friend_controller_1.fetchFriends);
+FriendRouter.get("/suggestion", friend_controller_1.suggestedFriends);
+FriendRouter.get("/request", friend_controller_1.friendRequest);
+FriendRouter.delete("/:id", friend_controller_1.deleteFriend);
+exports.default = FriendRouter;
