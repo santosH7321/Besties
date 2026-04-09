@@ -9,4 +9,7 @@ module.exports = {
   transform: {
     ...tsJestTransformCfg,
   },
+  moduleNameMapper: {
+    "^uuid$": require.resolve("uuid"),
+  },
 };

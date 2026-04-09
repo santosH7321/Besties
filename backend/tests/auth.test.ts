@@ -1,17 +1,20 @@
 import request from "supertest";
-import express from "express";
+import app from "../src/app";
 
-const app = express();
+jest.mock("../src/models/auth.model");
 
-app.get("/test", (req, res) => {
-  res.status(200).json({ message: "Test working" });
-});
 
-describe("Basic Test", () => {
-  it("should return 200", async () => {
-    const res = await request(app).get("/test");
+describe("Auth Routes", () => {
+  it("should test signup route", async () => {
+    const res = await request(app)
+      .post("/auth/signup")
+      .send({
+        fullname: "Test User",
+        email: "test@test.com",
+        password: "123456",
+        mobile: "1234567890"
+      });
 
-    expect(res.status).toBe(200);
-    expect(res.body.message).toBe("Test working");
+    expect(res.body.message).toBe("Signup Success ✅");
   });
 });
