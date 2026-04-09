@@ -49,6 +49,38 @@ describe("Auth Routes", () => {
       expect(res.body.message).toBe("Login Success 🎉");
 
       expect(res.headers["set-cookie"]).toBeDefined();
+  });
+
+  it("should fail if user not found", async () => {
+    (AuthModel as any).findOne = jest.fn().mockResolvedValue(null);
+
+    const res = await request(app)
+      .post("/auth/login")
+      .send({
+        email: "wrong@test.com",
+        password: "123456"
+      });
+
+    expect(res.status).toBe(404);
+  });
+
+  it("should fail if password is incorrect", async () => {
+    (AuthModel as any).findOne = jest.fn().mockResolvedValue({
+      _id: "123",
+      email: "test@test.com",
+      password: "hashedPassword"
     });
+
+    (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+    const res = await request(app)
+      .post("/auth/login")
+      .send({
+        email: "test@test.com",
+        password: "wrongpassword"
+      });
+
+    expect(res.status).toBe(401);
+  });
 });
 
