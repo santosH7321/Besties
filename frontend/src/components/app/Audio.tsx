@@ -290,8 +290,13 @@ const AudioChat = () => {
         }
     }, [])
 
-    if(!liveActiveSession)
-        return navigate("/app")
+    useEffect(() => {
+    if (!liveActiveSession) {
+        navigate("/app");
+    }
+    }, [liveActiveSession]);
+
+    if (!liveActiveSession) return null;
 
     return (
         <div className='space-y-8'>

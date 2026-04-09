@@ -1,5 +1,5 @@
-import { CKEditor } from '@ckeditor/ckeditor5-react'
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import type { FC } from 'react'
 
 const toolbars: string[] = [
@@ -29,7 +29,7 @@ const Editor: FC<EditorInterface> = ({ value, onChange }) => {
   return (
     <CKEditor
       data={value}
-      editor={ClassicEditor}
+      editor={ClassicEditor as any}
       config={{ toolbar: toolbars }}
       onChange={handleChange}
     />

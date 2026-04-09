@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 export default function Home() {
   return (
     <div className="bg-black text-white min-h-screen">
-      {/* Navbar */}
       <nav className="flex justify-between items-center px-6 py-4 border-b border-gray-800">
         <h1 className="text-2xl font-bold text-blue-500">Besties</h1>
         <div className="space-x-4">
@@ -17,7 +16,6 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <section className="flex flex-col lg:flex-row items-center justify-between px-6 lg:px-20 py-16 gap-10">
         <div className="max-w-xl">
           <h2 className="text-4xl lg:text-6xl font-bold leading-tight">
@@ -47,7 +45,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="px-6 lg:px-20 py-20">
         <h3 className="text-3xl font-bold text-center mb-12">Features</h3>
 
@@ -73,7 +70,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="px-6 lg:px-20 py-20 text-center">
         <h3 className="text-3xl lg:text-4xl font-bold">
           Ready to connect with your Besties?
@@ -88,7 +84,6 @@ export default function Home() {
         </Link>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-gray-800 px-6 lg:px-20 py-6 text-center text-gray-500">
         © {new Date().getFullYear()} Besties. All rights reserved.
       </footer>

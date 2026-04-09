@@ -150,7 +150,7 @@ const Layout = () => {
         },
         {
             icon: "ri-chat-smile-3-line",
-            href: "/app/my-posts",
+            href: "/app/posts",
             label: "my posts"
         },
         {
