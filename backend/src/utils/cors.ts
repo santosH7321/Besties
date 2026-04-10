@@ -1,3 +1,4 @@
+
 const corsConfig = {
     origin: process.env.CLIENT,
     credentials: true
