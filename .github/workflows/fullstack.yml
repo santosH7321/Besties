@@ -29,17 +29,18 @@ jobs:
           DB: ${{ secrets.DB }}
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
 
+      - name: Build backend Docker image
+        working-directory: ./backend
+        run: docker build -t backend-app .
+
       - name: Login to DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Push Docker Image
         run: |
-          docker tag backend-app ${{ secrets.DOCKER_USERNAME }}/backend-app
+          docker tag backend-app ${{ secrets.DOCKER_USERNAME }}/backend-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/backend-app
 
-      - name: Build backend Docker image
-        working-directory: ./backend
-        run: docker build -t backend-app .
 
   frontend:
     runs-on: ubuntu-latest
