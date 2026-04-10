@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://your-backend-url/$1"
+      "destination": "https://besties-67dr.onrender.com/api/$1"
     }
   ]
 }
