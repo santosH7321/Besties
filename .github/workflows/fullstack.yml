@@ -1,0 +1,54 @@
+name: Fullstack CI/CD
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+
+  backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install backend deps
+        working-directory: ./backend
+        run: npm install
+
+      - name: Run backend tests
+        working-directory: ./backend
+        run: npm test
+        env:
+          DB: ${{ secrets.DB }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+
+      - name: Build backend Docker image
+        working-directory: ./backend
+        run: docker build -t backend-app .
+
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install frontend deps
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
