@@ -1,16 +1,21 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import Button from "./shared/Button"
 import Card from "./shared/Card"
 import Input from "./shared/Input"
 import Form, { type FormDataType } from "./shared/Form"
 import HttpInterceptor from "../lib/HttpInterceptor"
+import { toast } from "react-toastify"
 
 const Signup = () => {
+  const navigate = useNavigate()
+
   const signup = async (values: FormDataType) => {
     try {
       const {data} = await HttpInterceptor.post("/auth/signup", values)
-      console.log(data)
+      toast.success(data.message)
+      navigate("/login")
     } catch (err) {
+      toast.error("Failed to sign up")
       console.log(err)
     }
   }
